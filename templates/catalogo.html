@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Produtos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Catálogo de Produtos</h1>
+
+    <!-- Formulário de Busca -->
+    <form method="GET" action="/catalogo">
+        <input type="text" name="search" placeholder="Buscar por nome">
+        <select name="tipo">
+            <option value="">Todos os Tipos</option>
+            <option value="cafe">Café</option>
+            <option value="cupcake">Cupcake</option>
+        </select>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div id="produtos">
+        {% for produto in produtos %}
+        <div class="produto">
+            <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+            <h2>{{ produto.nome }}</h2>
+            <p>{{ produto.descricao }}</p>
+            <p>Preço: R$ {{ produto.preco }}</p>
+            <a href="{{ url_for('personalizar_produto', produto_id=produto.id) }}">Personalizar</a>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

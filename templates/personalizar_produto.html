@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalizar Produto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Personalizar {{ produto.nome }}</h1>
+    <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+    <p>{{ produto.descricao }}</p>
+    <p>Preço: R$ {{ produto.preco }}</p>
+
+    <!-- Formulário de Personalização -->
+    {% if produto.tipo == 'cafe' %}
+    <form action="" method="POST">
+        <h3>Personalize seu Café</h3>
+        <label for="intensidade">Intensidade:</label>
+        <select name="intensidade" required>
+            <option value="fraco">Fraco</option>
+            <option value="medio">Médio</option>
+            <option value="forte">Forte</option>
+        </select>
+        <br>
+        <label for="adicionais">Adicionais:</label>
+        <input type="checkbox" name="adicionais" value="leite"> Leite
+        <input type="checkbox" name="adicionais" value="acucar"> Açúcar
+        <input type="checkbox" name="adicionais" value="chantilly"> Chantilly
+        <br>
+        <button type="submit">Adicionar ao Pedido</button>
+    </form>
+    {% elif produto.tipo == 'cupcake' %}
+    <form action="" method="POST">
+        <h3>Personalize seu Cupcake</h3>
+        <label for="cobertura">Cobertura:</label>
+        <select name="cobertura" required>
+            <option value="chocolate">Chocolate</option>
+            <option value="morango">Morango</option>
+            <option value="baunilha">Baunilha</option>
+        </select>
+        <br>
+        <label for="ingredientes_adicionais">Ingredientes Adicionais:</label>
+        <input type="checkbox" name="ingredientes_adicionais" value="granulado"> Granulado
+        <input type="checkbox" name="ingredientes_adicionais" value="nozes"> Nozes
+        <input type="checkbox" name="ingredientes_adicionais" value="frutas"> Frutas
+        <br>
+        <button type="submit">Adicionar ao Pedido</button>
+    </form>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script>
+        function enviarCodigo() {
+            // Função para enviar o código de recuperação por email
+            var email = document.getElementById('emailRecuperacao').value;
+            fetch('/enviar_codigo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    email: email
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data);
+                document.getElementById('codigoRecuperacao').disabled = false;
+                document.getElementById('verificarCodigoBotao').disabled = false;
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+    </script>
+</head>
+<body>
+    <h2>Recuperar Senha</h2>
+    <form id="recuperarSenhaForm" action="/verificar_codigo" method="post">
+        <label for="emailRecuperacao">E-mail:</label>
+        <input type="email" id="emailRecuperacao" name="email" required><br>
+        <button type="button" onclick="enviarCodigo()">Enviar Código por E-mail</button><br><br>
+        <label for="codigoRecuperacao">Código de Recuperação:</label>
+        <input type="text" id="codigoRecuperacao" name="codigo_recuperacao" required disabled><br>
+        <button type="submit" id="verificarCodigoBotao" disabled>Verificar Código</button>
+    </form>
+</body>
+</html>

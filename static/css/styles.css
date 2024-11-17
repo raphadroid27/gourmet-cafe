@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    color: #333;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#produtos {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.produto {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    width: calc(33% - 40px);
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.produto img {
+    width: 100%;
+    height: auto;
+}
