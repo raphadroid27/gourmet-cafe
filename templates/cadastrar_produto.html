@@ -14,14 +14,35 @@
         <label for="descricao">Descrição:</label>
         <input type="text" id="descricao" name="descricao" required><br>
         <label for="preco">Preço:</label>
-        <input type="text" id="preco" name="preco" required><br>
+        <input type="text" id="preco" name="preco" required pattern="^\d+(\.\d{1,2})?$" oninput="validarPreco()"><br>
         <label for="imagem">URL da Imagem:</label>
-        <input type="text" id="imagem" name="imagem" required><br>
+        <input type="text" id="imagem" name="imagem" required oninput="atualizarImagem()"><br>
+        <img id="preview" src="" style="max-width: 200px; max-height: 200px;"><br>
         <label for="tipo">Tipo:</label>
-        <input type="text" id="tipo" name="tipo" required><br>
+        <select id="tipo" name="tipo" required>
+            <option value="eletronico">Café</option>
+            <option value="vestuario">Cupcake</option>
+        </select><br><br>
         <label for="ingredientes">Ingredientes:</label>
         <input type="text" id="ingredientes" name="ingredientes"><br>
         <button type="submit">Cadastrar Produto</button>
     </form>
+
+    <script>
+    function atualizarImagem() {
+        var url = document.getElementById('imagem').value;
+        document.getElementById('preview').src = url;
+    }
+
+    function validarPreco() {
+        var preco = document.getElementById('preco');
+        var regex = /^\d+(\.\d{1,2})?$/;
+        if (!regex.test(preco.value)) {
+            preco.setCustomValidity('Por favor, insira um valor monetário válido.');
+        } else {
+            preco.setCustomValidity('');
+        }
+    }
+    </script>
 </body>
 </html>
