@@ -197,7 +197,8 @@ def ver_carrinho():
                 'nome': produto.nome,
                 'quantidade': item['quantidade'],
                 'preco': produto.preco,
-                'subtotal': produto.preco * item['quantidade']
+                'subtotal': produto.preco * item['quantidade'],
+                'imagem': produto.imagem  # Adicione a URL da imagem aqui
             })
             total += produto.preco * item['quantidade']
     

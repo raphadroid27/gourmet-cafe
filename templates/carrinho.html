@@ -12,6 +12,7 @@
     <table>
         <thead>
             <tr>
+                <th></th>
                 <th>Produto</th>
                 <th>Quantidade</th>
                 <th>Valor Unitário</th>
@@ -22,6 +23,7 @@
         <tbody>
             {% for item in produtos %}
             <tr>
+                <td><img src="{{ item.imagem }}" alt="{{ item.nome }}" style="width: 50px; height: 50px;"></td>
                 <td>{{ item.nome }}</td>
                 <td>
                     <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1" data-produto-id="{{ item.id }}" class="quantidade-input">
@@ -39,7 +41,7 @@
         </tbody>
     </table>
     <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
-    <form action="/finalizar_compra" method="post">
+    <div style="display: flex; gap: 10px;"></div>
         <button type="submit" class="btn">Finalizar Compra</button>
     </form>
     <a href="{{ url_for('catalogo') }}" class="btn">Continuar Comprando</a>
