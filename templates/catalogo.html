@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Produtos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <h1>Catálogo de Produtos</h1>
+    <a href="{{ url_for('ver_carrinho') }}" class="btn-ver-carrinho">
+        <i class="fas fa-shopping-cart"></i> Ver Carrinho
+    </a>
 
     <!-- Formulário de Busca -->
     <form method="GET" action="/catalogo">
@@ -27,6 +31,10 @@
             <p>{{ produto.descricao }}</p>
             <p>Preço: {{ produto.preco }}</p>
             <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+            <form action="/adicionar_ao_carrinho" method="post">
+                <input type="hidden" name="produto_id" value="{{ produto.id }}">
+                <button type="submit">Adicionar ao Carrinho</button>
+            </form>
         </div>
         {% endfor %}
     </div>

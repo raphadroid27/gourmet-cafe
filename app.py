@@ -1,5 +1,5 @@
 from uuid import uuid4
-from flask import Flask, request, render_template, redirect, url_for, jsonify
+from flask import Flask, request, render_template, redirect, url_for, jsonify, session
 import random 
 import threading 
 import time 
@@ -7,9 +7,10 @@ import re
 import hashlib
 import smtplib
 from email.mime.text import MIMEText
-from models import Usuario, Produto, session
+from models import Usuario, Produto, session as db_session
 
 app = Flask(__name__)
+app.secret_key = 'sua_chave_secreta'
 
 def cadastrar_usuario(nome, email, senha):
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
@@ -20,8 +21,8 @@ def cadastrar_usuario(nome, email, senha):
     senha_hash = hashlib.sha256(senha.encode()).hexdigest()
     codigo_recuperacao = gerar_codigo_recuperacao()
     novo_usuario = Usuario(nome=nome, email=email, senha=senha_hash)
-    session.add(novo_usuario)
-    session.commit()
+    db_session.add(novo_usuario)
+    db_session.commit()
     return f"Usuário {nome} cadastrado com sucesso."
 
 @app.route('/')
@@ -33,7 +34,7 @@ def catalogo():
     search = request.args.get('search', '')
     tipo = request.args.get('tipo', '')
     
-    query = session.query(Produto).filter(Produto.nome.like(f'%{search}%'))
+    query = db_session.query(Produto).filter(Produto.nome.like(f'%{search}%'))
     
     if tipo:
         query = query.filter(Produto.tipo == tipo)
@@ -62,8 +63,8 @@ def cadastrar_produto():
             tipo=tipo, 
             ingredientes=ingredientes
         )
-        session.add(novo_produto)
-        session.commit()
+        db_session.add(novo_produto)
+        db_session.commit()
         mensagem = "Produto cadastrado com sucesso!"
         return render_template('mensagem.html', mensagem=mensagem)
     return render_template('cadastrar_produto.html')
@@ -82,7 +83,7 @@ def login():
     email = request.form['email']
     senha = request.form['senha']
     senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-    usuario = session.query(Usuario).filter_by(email=email).first()
+    usuario = db_session.query(Usuario).filter_by(email=email).first()
     if usuario and usuario.senha == senha_hash:
         return redirect(url_for('catalogo'))
     else:
@@ -102,10 +103,10 @@ def enviar_email_confirmacao(email):
 def atualizar_codigos_recuperacao():
     while True:
         time.sleep(60)  # Espera por 1 minuto
-        usuarios = session.query(Usuario).all()
+        usuarios = db_session.query(Usuario).all()
         for usuario in usuarios:
             usuario.codigo_recuperacao = gerar_codigo_recuperacao()
-        session.commit()
+        db_session.commit()
 
 # Rota para página de recuperação de senha
 @app.route('/recuperar_senha')
@@ -116,11 +117,11 @@ def recuperar_senha():
 @app.route('/enviar_codigo', methods=['POST'])
 def enviar_codigo():
     email = request.form['email']
-    usuario = session.query(Usuario).filter_by(email=email).first()
+    usuario = db_session.query(Usuario).filter_by(email=email).first()
 
     if usuario:
         usuario.codigo_recuperacao = gerar_codigo_recuperacao()
-        session.commit()
+        db_session.commit()
         return "Código de recuperação enviado para o e-mail."
     mensagem="dsds"
     return render_template('mensagem.html', mensagem=mensagem)
@@ -131,7 +132,7 @@ def verificar_codigo():
     email = request.form['email']
     codigo_recuperacao = request.form['codigo_recuperacao']
 
-    usuario = session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
+    usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
 
     if usuario:
         return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
@@ -152,34 +153,34 @@ def resetar_senha():
     if not re.match(regex, nova_senha):
         return "A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial."
 
-    usuario = session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
+    usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
     
     if usuario:
         usuario.senha = nova_senha
         usuario.codigo_recuperacao = None
-        session.commit()
+        db_session.commit()
         return "Senha alterada com sucesso."
     return "Código de recuperação inválido."
 
 # Rota para adicionar produto ao carrinho
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():
-    produto_id = request.form['produto_id']
-    quantidade = int(request.form['quantidade'])
-    
-    produto = session.query(Produto).filter_by(id=produto_id).first()
-    
-    if not produto:
-        return "Produto não encontrado."
-    
+    produto_id = request.form.get('produto_id')
     if 'carrinho' not in session:
         session['carrinho'] = []
     
     carrinho = session['carrinho']
-    carrinho.append({'produto_id': produto_id, 'quantidade': quantidade, 'preco': produto.preco})
-    session['carrinho'] = carrinho
     
-    return redirect(url_for('ver_carrinho'))
+    # Verifica se o produto já está no carrinho
+    for item in carrinho:
+        if item['produto_id'] == produto_id:
+            item['quantidade'] += 1
+            break
+    else:
+        carrinho.append({'produto_id': produto_id, 'quantidade': 1})
+    
+    session['carrinho'] = carrinho
+    return redirect(url_for('catalogo'))
 
 # Rota para visualizar o carrinho
 @app.route('/ver_carrinho')
@@ -192,7 +193,7 @@ def ver_carrinho():
     total = 0
     
     for item in carrinho:
-        produto = session.query(Produto).filter_by(id=item['produto_id']).first()
+        produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
         if produto:
             produtos.append({
                 'nome': produto.nome,
