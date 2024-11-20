@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrinho de Compras</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Carrinho de Compras</h1>
@@ -12,25 +13,21 @@
         <thead>
             <tr>
                 <th>Produto</th>
-                <th>Preço</th>
                 <th>Quantidade</th>
+                <th>Valor Unitário</th>
                 <th>Total</th>
-                <th>Ações</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for item in produtos %}
             <tr>
                 <td>{{ item.nome }}</td>
-                <td>{{ item.preco }}</td>
                 <td>
-                    <form action="/atualizar_quantidade" method="post">
-                        <input type="hidden" name="produto_id" value="{{ item.id }}">
-                        <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1">
-                        <button type="submit">Atualizar</button>
-                    </form>
+                    <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1" data-produto-id="{{ item.id }}" class="quantidade-input">
                 </td>
-                <td>{{ item.subtotal }}</td>
+                <td>R$ {{ item.preco }}</td>
+                <td>R$ {{ '%.2f'|format(item.subtotal) }}</td>
                 <td>
                     <form action="/remover_item" method="post">
                         <input type="hidden" name="produto_id" value="{{ item.id }}">
@@ -41,10 +38,31 @@
             {% endfor %}
         </tbody>
     </table>
-    <h2>Total: {{ total }}</h2>
+    <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
     <form action="/finalizar_compra" method="post">
         <button type="submit">Finalizar Compra</button>
     </form>
     <a href="{{ url_for('catalogo') }}" class="btn-continuar-comprando">Continuar Comprando</a>
+
+    <script>
+        $(document).ready(function() {
+            $('.quantidade-input').on('change', function() {
+                var produtoId = $(this).data('produto-id');
+                var quantidade = $(this).val();
+
+                $.ajax({
+                    url: '/atualizar_quantidade',
+                    method: 'POST',
+                    data: {
+                        produto_id: produtoId,
+                        quantidade: quantidade
+                    },
+                    success: function(response) {
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

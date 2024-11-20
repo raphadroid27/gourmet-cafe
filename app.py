@@ -225,7 +225,7 @@ def atualizar_quantidade():
             break
     
     session['carrinho'] = carrinho
-    return redirect(url_for('ver_carrinho'))
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
