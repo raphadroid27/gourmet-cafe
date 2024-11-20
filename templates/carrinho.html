@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho de Compras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Carrinho de Compras</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Preço</th>
+                <th>Quantidade</th>
+                <th>Total</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in carrinho %}
+            <tr>
+                <td>{{ item.produto.nome }}</td>
+                <td>{{ item.produto.preco }}</td>
+                <td>
+                    <form action="/atualizar_quantidade" method="post">
+                        <input type="hidden" name="produto_id" value="{{ item.produto.id }}">
+                        <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1">
+                        <button type="submit">Atualizar</button>
+                    </form>
+                </td>
+                <td>{{ item.produto.preco * item.quantidade }}</td>
+                <td>
+                    <form action="/remover_item" method="post">
+                        <input type="hidden" name="produto_id" value="{{ item.produto.id }}">
+                        <button type="submit">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Total: {{ total }}</h2>
+    <form action="/finalizar_compra" method="post">
+        <button type="submit">Finalizar Compra</button>
+    </form>
+</body>
+</html>

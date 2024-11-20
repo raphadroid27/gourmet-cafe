@@ -161,6 +161,49 @@ def resetar_senha():
         return "Senha alterada com sucesso."
     return "Código de recuperação inválido."
 
+# Rota para adicionar produto ao carrinho
+@app.route('/adicionar_ao_carrinho', methods=['POST'])
+def adicionar_ao_carrinho():
+    produto_id = request.form['produto_id']
+    quantidade = int(request.form['quantidade'])
+    
+    produto = session.query(Produto).filter_by(id=produto_id).first()
+    
+    if not produto:
+        return "Produto não encontrado."
+    
+    if 'carrinho' not in session:
+        session['carrinho'] = []
+    
+    carrinho = session['carrinho']
+    carrinho.append({'produto_id': produto_id, 'quantidade': quantidade, 'preco': produto.preco})
+    session['carrinho'] = carrinho
+    
+    return redirect(url_for('ver_carrinho'))
+
+# Rota para visualizar o carrinho
+@app.route('/ver_carrinho')
+def ver_carrinho():
+    if 'carrinho' not in session:
+        return render_template('carrinho.html', produtos=[], total=0)
+    
+    carrinho = session['carrinho']
+    produtos = []
+    total = 0
+    
+    for item in carrinho:
+        produto = session.query(Produto).filter_by(id=item['produto_id']).first()
+        if produto:
+            produtos.append({
+                'nome': produto.nome,
+                'quantidade': item['quantidade'],
+                'preco': produto.preco,
+                'subtotal': produto.preco * item['quantidade']
+            })
+            total += produto.preco * item['quantidade']
+    
+    return render_template('carrinho.html', produtos=produtos, total=total)
+
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
     app.run(debug=True)
