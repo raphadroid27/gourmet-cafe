@@ -31,7 +31,7 @@
                 <td>
                     <form action="/remover_item" method="post">
                         <input type="hidden" name="produto_id" value="{{ item.id }}">
-                        <button type="submit">Remover</button>
+                        <button type="submit" class="btn">Remover</button>
                     </form>
                 </td>
             </tr>
@@ -40,9 +40,9 @@
     </table>
     <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
     <form action="/finalizar_compra" method="post">
-        <button type="submit">Finalizar Compra</button>
+        <button type="submit" class="btn">Finalizar Compra</button>
     </form>
-    <a href="{{ url_for('catalogo') }}" class="btn-continuar-comprando">Continuar Comprando</a>
+    <a href="{{ url_for('catalogo') }}" class="btn">Continuar Comprando</a>
 
     <script>
         $(document).ready(function() {
