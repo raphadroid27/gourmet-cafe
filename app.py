@@ -231,16 +231,41 @@ def atualizar_quantidade():
 @app.route('/limpar_carrinho')
 def limpar_carrinho():
     session['carrinho'] = []
-    return redirect(url_for('ver_carrinho'))
+    return redirect(url_for('catalogo'))
 
 @app.route('/finalizar_compra', methods=['GET', 'POST'])
 def finalizar_compra():
-        if request.method == 'POST':
-            # Aqui você pode adicionar a lógica para processar o pagamento e finalizar a compra
-            session['carrinho'] = []  # Limpa o carrinho após a compra
-            mensagem = "Compra finalizada com sucesso!"
-            return render_template('mensagem.html', mensagem=mensagem)
-        return render_template('finalizar_compra.html')    
+    if request.method == 'POST':
+        endereco = request.form.get('endereco')
+        cidade = request.form.get('cidade')
+        estado = request.form.get('estado')
+        cep = request.form.get('cep')
+        forma_pagamento = request.form.get('forma_pagamento')
+        
+        if forma_pagamento == 'cartao':
+            numero_cartao = request.form.get('numero_cartao')
+            nome_cartao = request.form.get('nome_cartao')
+            validade_cartao = request.form.get('validade_cartao')
+            cvv_cartao = request.form.get('cvv_cartao')
+            # Adicione a lógica para processar o pagamento com cartão de crédito aqui
+        
+        elif forma_pagamento == 'pix':
+            # Adicione a lógica para processar o pagamento com Pix aqui
+        
+        # Limpa o carrinho após a compra
+            session['carrinho'] = []
+        mensagem = "Compra finalizada com sucesso!"
+        return render_template('mensagem.html', mensagem=mensagem)
+    
+    # Calcular o total dos itens no carrinho
+    carrinho = session.get('carrinho', [])
+    total = 0
+    for item in carrinho:
+        produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
+        if produto:
+            total += produto.preco * item['quantidade']
+    
+    return render_template('finalizar_compra.html', total=total)
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
