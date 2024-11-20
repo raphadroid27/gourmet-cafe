@@ -55,3 +55,17 @@ button:hover {
     width: 100%;
     height: auto;
 }
+
+.btn-continuar-comprando {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn-continuar-comprando:hover {
+    background-color: #0056b3;
+}

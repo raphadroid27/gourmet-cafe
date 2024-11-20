@@ -19,21 +19,21 @@
             </tr>
         </thead>
         <tbody>
-            {% for item in carrinho %}
+            {% for item in produtos %}
             <tr>
-                <td>{{ item.produto.nome }}</td>
-                <td>{{ item.produto.preco }}</td>
+                <td>{{ item.nome }}</td>
+                <td>{{ item.preco }}</td>
                 <td>
                     <form action="/atualizar_quantidade" method="post">
-                        <input type="hidden" name="produto_id" value="{{ item.produto.id }}">
+                        <input type="hidden" name="produto_id" value="{{ item.id }}">
                         <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1">
                         <button type="submit">Atualizar</button>
                     </form>
                 </td>
-                <td>{{ item.produto.preco * item.quantidade }}</td>
+                <td>{{ item.subtotal }}</td>
                 <td>
                     <form action="/remover_item" method="post">
-                        <input type="hidden" name="produto_id" value="{{ item.produto.id }}">
+                        <input type="hidden" name="produto_id" value="{{ item.id }}">
                         <button type="submit">Remover</button>
                     </form>
                 </td>
@@ -45,5 +45,6 @@
     <form action="/finalizar_compra" method="post">
         <button type="submit">Finalizar Compra</button>
     </form>
+    <a href="{{ url_for('catalogo') }}" class="btn-continuar-comprando">Continuar Comprando</a>
 </body>
 </html>

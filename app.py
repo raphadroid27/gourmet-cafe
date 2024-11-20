@@ -185,10 +185,7 @@ def adicionar_ao_carrinho():
 # Rota para visualizar o carrinho
 @app.route('/ver_carrinho')
 def ver_carrinho():
-    if 'carrinho' not in session:
-        return render_template('carrinho.html', produtos=[], total=0)
-    
-    carrinho = session['carrinho']
+    carrinho = session.get('carrinho', [])
     produtos = []
     total = 0
     
@@ -196,6 +193,7 @@ def ver_carrinho():
         produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
         if produto:
             produtos.append({
+                'id': produto.id,
                 'nome': produto.nome,
                 'quantidade': item['quantidade'],
                 'preco': produto.preco,
@@ -204,6 +202,30 @@ def ver_carrinho():
             total += produto.preco * item['quantidade']
     
     return render_template('carrinho.html', produtos=produtos, total=total)
+
+@app.route('/remover_item', methods=['POST'])
+def remover_item():
+    produto_id = request.form.get('produto_id')
+    carrinho = session.get('carrinho', [])
+    
+    carrinho = [item for item in carrinho if item['produto_id'] != produto_id]
+    
+    session['carrinho'] = carrinho
+    return redirect(url_for('ver_carrinho'))
+
+@app.route('/atualizar_quantidade', methods=['POST'])
+def atualizar_quantidade():
+    produto_id = request.form.get('produto_id')
+    quantidade = int(request.form.get('quantidade'))
+    carrinho = session.get('carrinho', [])
+    
+    for item in carrinho:
+        if item['produto_id'] == produto_id:
+            item['quantidade'] = quantidade
+            break
+    
+    session['carrinho'] = carrinho
+    return redirect(url_for('ver_carrinho'))
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
