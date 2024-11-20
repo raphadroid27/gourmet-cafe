@@ -43,22 +43,6 @@ def catalogo():
     
     return render_template('catalogo.html', produtos=produtos)
 
-@app.route('/personalizar_produto/<produto_id>', methods=['GET', 'POST'])
-def personalizar_produto(produto_id):
-    """
-    Exibe a página de personalização para o produto selecionado.
-    """
-    produto = session.query(Produto).get(produto_id)
-    if request.method == 'POST':
-        intensidade = request.form.get('intensidade', '')
-        adicionais = request.form.getlist('adicionais')
-        cobertura = request.form.get('cobertura', '')
-        ingredientes_adicionais = request.form.getlist('ingredientes_adicionais')
-        
-        return render_template('resumo_pedido.html', produto=produto, intensidade=intensidade, adicionais=adicionais, cobertura=cobertura, ingredientes_adicionais=ingredientes_adicionais)
-
-    return render_template('personalizar_produto.html', produto=produto)
-
 @app.route('/cadastrar_produto', methods=['GET', 'POST'])
 def cadastrar_produto():
     if request.method == 'POST':
@@ -80,8 +64,10 @@ def cadastrar_produto():
         )
         session.add(novo_produto)
         session.commit()
-        return redirect(url_for('catalogo'))
+        mensagem = "Produto cadastrado com sucesso!"
+        return render_template('mensagem.html', mensagem=mensagem)
     return render_template('cadastrar_produto.html')
+        
 
 @app.route('/cadastrar', methods=['POST'])
 def cadastrar():
@@ -103,10 +89,6 @@ def login():
         mensagem = "E-mail ou senha incorretos!" 
         return render_template('mensagem.html', mensagem=mensagem)
     
-
-
-
-
 # Função para gerar código de recuperação
 def gerar_codigo_recuperacao():
     return ''.join(random.choices('0123456789', k=6))
