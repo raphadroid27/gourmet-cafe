@@ -4,55 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finalizar Compra</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Finalizar Compra</h1>
-    <form action="{{ url_for('finalizar_compra') }}" method="post">
-        <h2>Endereço de Entrega</h2>
-        <label for="endereco">Endereço:</label>
-        <input type="text" id="endereco" name="endereco" required>
+    <div class="container mt-5">
+        <h1 class="mb-4">Finalizar Compra</h1>
         
-        <label for="cidade">Cidade:</label>
-        <input type="text" id="cidade" name="cidade" required>
-        
-        <label for="estado">Estado:</label>
-        <input type="text" id="estado" name="estado" required>
-        
-        <label for="cep">CEP:</label>
-        <input type="text" id="cep" name="cep" required>
-        
-        <h2>Forma de Pagamento</h2>
-        <label>
-            <input type="radio" name="forma_pagamento" value="cartao" required> Cartão de Crédito
-        </label>
-        <div id="cartao_info" style="display: none;">
-            <label for="numero_cartao">Número do Cartão:</label>
-            <input type="text" id="numero_cartao" name="numero_cartao">
-            
-            <label for="nome_cartao">Nome no Cartão:</label>
-            <input type="text" id="nome_cartao" name="nome_cartao">
-            
-            <label for="validade_cartao">Validade:</label>
-            <input type="text" id="validade_cartao" name="validade_cartao">
-            
-            <label for="cvv_cartao">CVV:</label>
-            <input type="text" id="cvv_cartao" name="cvv_cartao">
-        </div>
-        
-        <label>
-            <input type="radio" name="forma_pagamento" value="pix" required> Pix
-        </label>
-        <div id="pix_info" style="display: none;">
-            <p>Chave Pix: sua-chave-pix@example.com</p>
-        </div>
-        
-        <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
-        
-        <button type="submit" class="btn">Finalizar Compra</button>
-    </form>
+        <!-- Resumo do Pedido -->
+        <h2>Resumo do Pedido</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in produtos %}
+                <tr>
+                    <td>{{ item.nome }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>R$ {{ '%.2f'|format(item.subtotal) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Total: R$ {{ '%.2f'|format(total) }}</h3>
 
+        <!-- Formulário de Finaliza��ão de Compra -->
+        <form action="{{ url_for('finalizar_compra') }}" method="post" class="needs-validation" novalidate>
+            <h2>Endereço de Entrega</h2>
+            <div class="form-group">
+                <label for="endereco">Endereço:</label>
+                <input type="text" id="endereco" name="endereco" class="form-control" required>
+                <div class="invalid-feedback">Por favor, insira o endereço.</div>
+            </div>
+            <div class="form-group">
+                <label for="cidade">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" class="form-control" required>
+                <div class="invalid-feedback">Por favor, insira a cidade.</div>
+            </div>
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <input type="text" id="estado" name="estado" class="form-control" required>
+                <div class="invalid-feedback">Por favor, insira o estado.</div>
+            </div>
+            <div class="form-group">
+                <label for="cep">CEP:</label>
+                <input type="text" id="cep" name="cep" class="form-control" required>
+                <div class="invalid-feedback">Por favor, insira o CEP.</div>
+            </div>
+            
+            <h2>Forma de Pagamento</h2>
+            <div class="form-check">
+                <input type="radio" id="cartao" name="forma_pagamento" value="cartao" class="form-check-input" required>
+                <label for="cartao" class="form-check-label">Cartão de Crédito</label>
+                <div class="invalid-feedback">Por favor, selecione uma forma de pagamento.</div>
+            </div>
+            <div id="cartao_info" style="display: none;">
+                <div class="form-group">
+                    <label for="numero_cartao">Número do Cartão:</label>
+                    <input type="text" id="numero_cartao" name="numero_cartao" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="nome_cartao">Nome no Cartão:</label>
+                    <input type="text" id="nome_cartao" name="nome_cartao" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="validade_cartao">Validade:</label>
+                    <input type="text" id="validade_cartao" name="validade_cartao" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="cvv_cartao">CVV:</label>
+                    <input type="text" id="cvv_cartao" name="cvv_cartao" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-check">
+                <input type="radio" id="pix" name="forma_pagamento" value="pix" class="form-check-input" required>
+                <label for="pix" class="form-check-label">Pix</label>
+            </div>
+            <div id="pix_info" style="display: none;">
+                <p>Chave Pix: sua-chave-pix@example.com</p>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Finalizar Compra</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+        // Validação do formulário
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+
+        // Mostrar/ocultar informações do cartão de crédito
         document.querySelectorAll('input[name="forma_pagamento"]').forEach((elem) => {
             elem.addEventListener("change", function(event) {
                 var value = event.target.value;

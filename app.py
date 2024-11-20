@@ -99,6 +99,7 @@ def enviar_email_confirmacao(email):
     mensagem = f"E-mail de confirmação enviado para {email}" 
     return render_template('mensagem.html', mensagem=mensagem)
 
+
 # Função para atualizar códigos de recuperação a cada hora
 def atualizar_codigos_recuperacao():
     while True:
