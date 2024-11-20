@@ -23,11 +23,10 @@
     <div id="produtos">
         {% for produto in produtos %}
         <div class="produto">
-            <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
             <h2>{{ produto.nome }}</h2>
             <p>{{ produto.descricao }}</p>
-            <p>Preço: R$ {{ produto.preco }}</p>
-            <a href="{{ url_for('personalizar_produto', produto_id=produto.id) }}">Personalizar</a>
+            <p>Preço: {{ produto.preco }}</p>
+            <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
         </div>
         {% endfor %}
     </div>
