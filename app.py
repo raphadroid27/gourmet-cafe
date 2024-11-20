@@ -228,6 +228,20 @@ def atualizar_quantidade():
     session['carrinho'] = carrinho
     return jsonify({'success': True})
 
+@app.route('/limpar_carrinho')
+def limpar_carrinho():
+    session['carrinho'] = []
+    return redirect(url_for('ver_carrinho'))
+
+@app.route('/finalizar_compra', methods=['GET', 'POST'])
+def finalizar_compra():
+        if request.method == 'POST':
+            # Aqui você pode adicionar a lógica para processar o pagamento e finalizar a compra
+            session['carrinho'] = []  # Limpa o carrinho após a compra
+            mensagem = "Compra finalizada com sucesso!"
+            return render_template('mensagem.html', mensagem=mensagem)
+        return render_template('finalizar_compra.html')    
+
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
     app.run(debug=True)

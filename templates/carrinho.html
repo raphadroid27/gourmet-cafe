@@ -41,10 +41,12 @@
         </tbody>
     </table>
     <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
-    <div style="display: flex; gap: 10px;"></div>
-        <button type="submit" class="btn">Finalizar Compra</button>
     </form>
-    <a href="{{ url_for('catalogo') }}" class="btn">Continuar Comprando</a>
+    
+    <a href="{{ url_for('catalogo') }}" class="btn">Continuar Comprando </a>
+    <a href="{{ url_for('limpar_carrinho') }}" class="btn">Limpar Carrinho</a>
+    <a href="{{ url_for('finalizar_compra') }}" class="btn">Finalizar Compra</a>
+    </a>
 
     <script>
         $(document).ready(function() {
