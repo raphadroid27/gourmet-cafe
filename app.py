@@ -260,13 +260,20 @@ def finalizar_compra():
     
     # Calcular o total dos itens no carrinho
     carrinho = session.get('carrinho', [])
+    produtos = []
     total = 0
     for item in carrinho:
         produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
         if produto:
-            total += produto.preco * item['quantidade']
+            subtotal = produto.preco * item['quantidade']
+            produtos.append({
+                'nome': produto.nome,
+                'quantidade': item['quantidade'],
+                'subtotal': subtotal
+            })
+            total += subtotal
     
-    return render_template('finalizar_compra.html', total=total)
+    return render_template('finalizar_compra.html', produtos=produtos, total=total)
 
 @app.route('/validar_cupom', methods=['POST'])
 def validar_cupom():
