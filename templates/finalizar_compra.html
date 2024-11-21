@@ -9,89 +9,109 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Finalizar Compra</h1>
-        
-        <!-- Resumo do Pedido -->
-        <h2>Resumo do Pedido</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Produto</th>
-                    <th>Quantidade</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in produtos %}
-                <tr>
-                    <td>{{ item.nome }}</td>
-                    <td>{{ item.quantidade }}</td>
-                    <td>R$ {{ '%.2f'|format(item.subtotal) }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h3>Total: R$ {{ '%.2f'|format(total) }}</h3>
+        <div class="centered-form">
+            <h1 class="mb-4">Finalizar Compra</h1>
+            
+            <!-- Resumo do Pedido -->
+            <h2>Resumo do Pedido</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in produtos %}
+                    <tr>
+                        <td>{{ item.nome }}</td>
+                        <td>{{ item.quantidade }}</td>
+                        <td>R$ {{ '%.2f'|format(item.subtotal) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h3>Total: R$ {{ '%.2f'|format(total) }}</h3>
 
-        <!-- Formulário de Finaliza��ão de Compra -->
-        <form action="{{ url_for('finalizar_compra') }}" method="post" class="needs-validation" novalidate>
-            <h2>Endereço de Entrega</h2>
-            <div class="form-group">
-                <label for="endereco">Endereço:</label>
-                <input type="text" id="endereco" name="endereco" class="form-control" required>
-                <div class="invalid-feedback">Por favor, insira o endereço.</div>
-            </div>
-            <div class="form-group">
-                <label for="cidade">Cidade:</label>
-                <input type="text" id="cidade" name="cidade" class="form-control" required>
-                <div class="invalid-feedback">Por favor, insira a cidade.</div>
-            </div>
-            <div class="form-group">
-                <label for="estado">Estado:</label>
-                <input type="text" id="estado" name="estado" class="form-control" required>
-                <div class="invalid-feedback">Por favor, insira o estado.</div>
-            </div>
-            <div class="form-group">
-                <label for="cep">CEP:</label>
-                <input type="text" id="cep" name="cep" class="form-control" required>
-                <div class="invalid-feedback">Por favor, insira o CEP.</div>
-            </div>
-            
-            <h2>Forma de Pagamento</h2>
-            <div class="form-check">
-                <input type="radio" id="cartao" name="forma_pagamento" value="cartao" class="form-check-input" required>
-                <label for="cartao" class="form-check-label">Cartão de Crédito</label>
-                <div class="invalid-feedback">Por favor, selecione uma forma de pagamento.</div>
-            </div>
-            <div id="cartao_info" style="display: none;">
+            <!-- Formulário de Finalização de Compra -->
+            <form action="{{ url_for('finalizar_compra') }}" method="post" class="needs-validation" novalidate>
+                <h2>Endereço de Entrega</h2>
                 <div class="form-group">
-                    <label for="numero_cartao">Número do Cartão:</label>
-                    <input type="text" id="numero_cartao" name="numero_cartao" class="form-control">
+                    <label for="endereco">Endereço:</label>
+                    <input type="text" id="endereco" name="endereco" class="form-control" required>
+                    <div class="invalid-feedback">Por favor, insira o endereço.</div>
                 </div>
                 <div class="form-group">
-                    <label for="nome_cartao">Nome no Cartão:</label>
-                    <input type="text" id="nome_cartao" name="nome_cartao" class="form-control">
+                    <label for="cidade">Cidade:</label>
+                    <input type="text" id="cidade" name="cidade" class="form-control" required>
+                    <div class="invalid-feedback">Por favor, insira a cidade.</div>
                 </div>
                 <div class="form-group">
-                    <label for="validade_cartao">Validade:</label>
-                    <input type="text" id="validade_cartao" name="validade_cartao" class="form-control">
+                    <label for="estado">Estado:</label>
+                    <input type="text" id="estado" name="estado" class="form-control" required>
+                    <div class="invalid-feedback">Por favor, insira o estado.</div>
                 </div>
                 <div class="form-group">
-                    <label for="cvv_cartao">CVV:</label>
-                    <input type="text" id="cvv_cartao" name="cvv_cartao" class="form-control">
+                    <label for="cep">CEP:</label>
+                    <input type="text" id="cep" name="cep" class="form-control" required>
+                    <div class="invalid-feedback">Por favor, insira o CEP.</div>
                 </div>
-            </div>
-            
-            <div class="form-check">
-                <input type="radio" id="pix" name="forma_pagamento" value="pix" class="form-check-input" required>
-                <label for="pix" class="form-check-label">Pix</label>
-            </div>
-            <div id="pix_info" style="display: none;">
-                <p>Chave Pix: sua-chave-pix@example.com</p>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Finalizar Compra</button>
-        </form>
+                
+                <!-- Campo de Cupom de Desconto -->
+                <h2>Cupom de Desconto</h2>
+                <div class="form-group">
+                    <label for="cupom">Código do Cupom:</label>
+                    <input type="text" id="cupom" name="cupom" class="form-control">
+                    <button type="button" class="btn btn-secondary mt-2" onclick="aplicarCupom()">Aplicar</button>
+                    <div id="mensagem-cupom" class="text-danger mt-2"></div>
+                </div>
+
+                <h2>Forma de Pagamento</h2>
+                <div class="card-deck mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input type="radio" id="cartao" name="forma_pagamento" value="cartao" class="form-check-input" required>
+                                <label for="cartao" class="form-check-label">Cartão de Crédito</label>
+                                <div class="invalid-feedback">Por favor, selecione uma forma de pagamento.</div>
+                            </div>
+                            <div id="cartao_info" style="display: none;">
+                                <div class="form-group">
+                                    <label for="numero_cartao">Número do Cartão:</label>
+                                    <input type="text" id="numero_cartao" name="numero_cartao" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nome_cartao">Nome no Cartão:</label>
+                                    <input type="text" id="nome_cartao" name="nome_cartao" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="validade_cartao">Validade:</label>
+                                    <input type="text" id="validade_cartao" name="validade_cartao" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv_cartao">CVV:</label>
+                                    <input type="text" id="cvv_cartao" name="cvv_cartao" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input type="radio" id="pix" name="forma_pagamento" value="pix" class="form-check-input" required>
+                                <label for="pix" class="form-check-label">Pix</label>
+                            </div>
+                            <div id="pix_info" style="display: none;">
+                                <p>Chave Pix: sua-chave-pix@example.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Finalizar Compra</button>
+            </form>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -128,6 +148,32 @@
                 }
             });
         });
+
+        function aplicarCupom() {
+            var cupom = document.getElementById('cupom').value;
+            var mensagemCupom = document.getElementById('mensagem-cupom');
+            
+            fetch('/validar_cupom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'cupom=' + encodeURIComponent(cupom)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.valido) {
+                    mensagemCupom.textContent = 'Cupom aplicado! Desconto de ' + data.desconto + '%';
+                    // Atualizar o valor total com o desconto
+                    var totalElement = document.querySelector('h3');
+                    var total = parseFloat(totalElement.textContent.replace('Total: R$ ', '').replace(',', '.'));
+                    var novoTotal = total - (total * data.desconto / 100);
+                    totalElement.textContent = 'Total: R$ ' + novoTotal.toFixed(2).replace('.', ',');
+                } else {
+                    mensagemCupom.textContent = 'Cupom inválido.';
+                }
+            });
+        }
     </script>
 </body>
 </html>

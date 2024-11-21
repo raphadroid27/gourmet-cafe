@@ -268,6 +268,24 @@ def finalizar_compra():
     
     return render_template('finalizar_compra.html', total=total)
 
+@app.route('/validar_cupom', methods=['POST'])
+def validar_cupom():
+    cupom = request.form.get('cupom')
+    # Supondo que temos uma função que verifica a validade do cupom
+    desconto = verificar_cupom(cupom)
+    if desconto:
+        return jsonify({'valido': True, 'desconto': desconto})
+    else:
+        return jsonify({'valido': False})
+
+def verificar_cupom(cupom):
+    # Exemplo de cupons válidos
+    cupons_validos = {
+        'DESCONTO10': 10,
+        'DESCONTO20': 20
+    }
+    return cupons_validos.get(cupom.upper())
+
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
     app.run(debug=True)
