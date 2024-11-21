@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ produto.nome }}</title>
+</head>
+<body>
+    <h1>{{ produto.nome }}</h1>
+    <p>{{ produto.descricao }}</p>
+    <p>Preço: R$ {{ produto.preco }}</p>
+    <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+
+    <h2>Avaliações</h2>
+    {% for avaliacao in avaliacoes %}
+    <div>
+        <p>Nota: {{ avaliacao.nota }}</p>
+        <p>Comentário: {{ avaliacao.comentario }}</p>
+        
+    </div>
+    {% endfor %}
+
+</body>
+</html>

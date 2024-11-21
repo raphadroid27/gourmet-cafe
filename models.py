@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Float, Date
+from sqlalchemy import create_engine, Column, String, Float, Date, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -32,6 +32,14 @@ class Compra(Base):
     data_compra = Column(Date)
     quantidade = Column(Float)
     preco_total = Column(Float)
+
+class Avaliacao(Base):
+    __tablename__ = 'avaliacoes'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email_usuario = Column(String)
+    id_produto = Column(String)
+    nota = Column(Integer)
+    comentario = Column(String)
 
 # Conectar ao banco de dados SQLite
 engine = create_engine('sqlite:///dbCoffee.db')

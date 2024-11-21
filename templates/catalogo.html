@@ -35,6 +35,7 @@
                 <input type="hidden" name="produto_id" value="{{ produto.id }}">
                 <button type="submit">Adicionar ao Carrinho</button>
             </form>
+            <a href="{{ url_for('ver_produto', produto_id=produto.id) }}" class="btn-detalhes-produto">Ver Detalhes</a>
         </div>
         {% endfor %}
     </div>

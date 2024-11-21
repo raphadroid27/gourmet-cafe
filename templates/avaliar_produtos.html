@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliar Produtos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="centered-form">
+            <h1 class="mb-4">Avaliar Produtos</h1>
+            <form action="{{ url_for('avaliar_produtos') }}" method="post">
+                {% for produto in produtos %}
+                <div class="produto-avaliacao mb-4">
+                    <h2>{{ produto.nome }}</h2>
+                    <label for="nota_{{ produto.id }}">Nota:</label>
+                    <input type="number" id="nota_{{ produto.id }}" name="nota_{{ produto.id }}" min="1" max="5" required>
+                    <label for="comentario_{{ produto.id }}">Comentário:</label>
+                    <textarea id="comentario_{{ produto.id }}" name="comentario_{{ produto.id }}" class="form-control"></textarea>
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Enviar Avaliações</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

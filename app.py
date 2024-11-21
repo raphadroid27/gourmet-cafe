@@ -7,7 +7,7 @@ import re
 import hashlib
 import smtplib
 from email.mime.text import MIMEText
-from models import Usuario, Produto, session as db_session
+from models import Usuario, Produto,Avaliacao, session as db_session
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'
@@ -253,10 +253,10 @@ def finalizar_compra():
         elif forma_pagamento == 'pix':
             # Adicione a lógica para processar o pagamento com Pix aqui
         
-        # Limpa o carrinho após a compra
-            session['carrinho'] = []
-        mensagem = "Compra finalizada com sucesso!"
-        return render_template('mensagem.html', mensagem=mensagem)
+            mensagem = "Compra finalizada com sucesso!"
+        
+        # Redireciona para a página de avaliação dos produtos
+        return redirect(url_for('avaliar_produtos'))
     
     # Calcular o total dos itens no carrinho
     carrinho = session.get('carrinho', [])
@@ -292,6 +292,94 @@ def verificar_cupom(cupom):
         'DESCONTO20': 20
     }
     return cupons_validos.get(cupom.upper())
+
+@app.route('/produto/<produto_id>', methods=['GET', 'POST'])
+def ver_produto(produto_id):
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    avaliacoes = db_session.query(Avaliacao).filter_by(id_produto=produto_id).all()
+    
+    if request.method == 'POST':
+        email_usuario = request.form.get('email_usuario')
+        nota = int(request.form.get('nota'))
+        comentario = request.form.get('comentario')
+        
+        nova_avaliacao = Avaliacao(
+            email_usuario=email_usuario,
+            id_produto=produto_id,
+            nota=nota,
+            comentario=comentario
+        )
+        db_session.add(nova_avaliacao)
+        db_session.commit()
+        return redirect(url_for('ver_produto', produto_id=produto_id))
+    
+    return render_template('produto.html', produto=produto, avaliacoes=avaliacoes)
+
+@app.route('/editar_avaliacao/<avaliacao_id>', methods=['GET', 'POST'])
+def editar_avaliacao(avaliacao_id):
+    avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
+    
+    if request.method == 'POST':
+        avaliacao.nota = int(request.form.get('nota'))
+        avaliacao.comentario = request.form.get('comentario')
+        db_session.commit()
+        return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
+    
+    return render_template('editar_avaliacao.html', avaliacao=avaliacao)
+
+@app.route('/denunciar_avaliacao/<avaliacao_id>', methods=['POST'])
+def denunciar_avaliacao(avaliacao_id):
+    avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
+    # Lógica para analisar a denúncia e tomar medidas apropriadas
+    # Por exemplo, marcar a avaliação como denunciada ou removê-la
+    db_session.delete(avaliacao)
+    db_session.commit()
+    return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
+
+@app.route('/avaliar_produtos', methods=['GET', 'POST'])
+def avaliar_produtos():
+    if request.method == 'POST':
+        email_usuario = session.get('email')  # Supondo que o email do usuário está armazenado na sessão
+        
+        # Obter os produtos comprados pelo usuário
+        carrinho = session.get('carrinho', [])
+        produtos = []
+        for item in carrinho:
+            produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
+            if produto:
+                produtos.append(produto)
+        
+        # Processar as avaliações enviadas pelo formulário
+        for produto in produtos:
+            nota = request.form.get(f'nota_{produto.id}')
+            comentario = request.form.get(f'comentario_{produto.id}')
+            
+            if nota:
+                nova_avaliacao = Avaliacao(
+                    email_usuario=email_usuario,
+                    id_produto=produto.id,
+                    nota=int(nota),
+                    comentario=comentario
+                )
+                db_session.add(nova_avaliacao)
+        
+        db_session.commit()
+        
+        # Limpa o carrinho após a avaliação dos produtos
+        session['carrinho'] = []
+        
+        mensagem = "Avaliações enviadas com sucesso!"
+        return render_template('mensagem.html', mensagem=mensagem)
+    
+    # Obter os produtos comprados pelo usuário
+    carrinho = session.get('carrinho', [])
+    produtos = []
+    for item in carrinho:
+        produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
+        if produto:
+            produtos.append(produto)
+    
+    return render_template('avaliar_produtos.html', produtos=produtos)
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
