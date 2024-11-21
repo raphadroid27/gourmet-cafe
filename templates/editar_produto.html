@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Produto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Editar Produto</h1>
+    <form action="/editar_produto/{{ produto.id }}" method="post">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" value="{{ produto.nome }}" required><br>
+        <label for="descricao">Descrição:</label>
+        <input type="text" id="descricao" name="descricao" value="{{ produto.descricao }}" required><br>
+        <label for="preco">Preço:</label>
+        <input type="text" id="preco" name="preco" value="{{ produto.preco }}" required pattern="^\d+(\.\d{1,2})?$" oninput="validarPreco()"><br>
+        <label for="imagem">URL da Imagem:</label>
+        <input type="text" id="imagem" name="imagem" value="{{ produto.imagem }}" required oninput="atualizarImagem()"><br>
+        <img id="preview" src="{{ produto.imagem }}" style="max-width: 200px; max-height: 200px;"><br>
+        <label for="tipo">Tipo:</label>
+        <select id="tipo" name="tipo" required>
+            <option value="cafe" {% if produto.tipo == 'cafe' %}selected{% endif %}>Café</option>
+            <option value="cupcake" {% if produto.tipo == 'cupcake' %}selected{% endif %}>Cupcake</option>
+        </select><br><br>
+        <label for="ingredientes">Ingredientes:</label>
+        <input type="text" id="ingredientes" name="ingredientes" value="{{ produto.ingredientes }}"><br>
+        <button type="submit">Salvar Alterações</button>
+    </form>
+
+    <script>
+    function atualizarImagem() {
+        var url = document.getElementById('imagem').value;
+        document.getElementById('preview').src = url;
+    }
+
+    function validarPreco() {
+        var preco = document.getElementById('preco');
+        var regex = /^\d+(\.\d{1,2})?$/;
+        if (!regex.test(preco.value)) {
+            preco.setCustomValidity('Por favor, insira um valor monetário válido.');
+        } else {
+            preco.setCustomValidity('');
+        }
+    }
+    </script>
+</body>
+</html>

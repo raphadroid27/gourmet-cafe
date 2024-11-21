@@ -381,6 +381,28 @@ def avaliar_produtos():
     
     return render_template('avaliar_produtos.html', produtos=produtos)
 
+@app.route('/editar_produto/<produto_id>', methods=['GET', 'POST'])
+def editar_produto(produto_id):
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    
+    if request.method == 'POST':
+        produto.nome = request.form['nome']
+        produto.descricao = request.form['descricao']
+        produto.preco = float(request.form['preco'])
+        produto.imagem = request.form['imagem']
+        produto.tipo = request.form['tipo']
+        produto.ingredientes = request.form['ingredientes']
+        
+        db_session.commit()
+        return redirect(url_for('listar_produtos'))
+    
+    return render_template('editar_produto.html', produto=produto)
+
+@app.route('/listar_produtos')
+def listar_produtos():
+    produtos = db_session.query(Produto).all()
+    return render_template('listar_produtos.html', produtos=produtos)
+
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
     app.run(debug=True)
