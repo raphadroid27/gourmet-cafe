@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Devolução</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="centered-form">
+            <h1>Solicitar Devolução</h1>
+            <form action="{{ url_for('devolucao') }}" method="post">
+                <div class="form-group">
+                    <label for="numero_pedido">Número do Pedido:</label>
+                    <input type="text" id="numero_pedido" name="numero_pedido" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="motivo">Motivo da Devolução:</label>
+                    <textarea id="motivo" name="motivo" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="contato">Informações de Contato:</label>
+                    <input type="text" id="contato" name="contato" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Solicitar Devolução</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
