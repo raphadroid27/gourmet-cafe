@@ -81,7 +81,9 @@
         </div>
 
         <div class="centered-form text-center">
-            <a href="/catalogo" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
+            <a href="{{ url_for('catalogo') }}" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
+            <a href="{{ url_for('devolucao') }}" class="btn btn-secondary btn-block">Solicitar Devolução</a>
+            <a href="{{ url_for('status_devolucao') }}" class="btn btn-secondary btn-block">Acompanhar Devolução</a>
         </div>
     </div>
 

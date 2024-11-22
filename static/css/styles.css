@@ -93,6 +93,7 @@ button:hover {
     color: #fff;
     background-color: #6c757d;
     border-color: #6c757d;
+    margin-left: 10px; /* Adiciona um espaço entre os botões */
 }
 
 .btn-secondary:hover {
@@ -149,4 +150,9 @@ button:hover {
 
 .table .table {
     background-color: #fff;
+}
+
+.star-rating {
+    font-size: 1.5rem;
+    color: #FFD700;
 }
