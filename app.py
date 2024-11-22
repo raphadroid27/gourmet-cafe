@@ -381,6 +381,27 @@ def avaliar_produtos():
     
     return render_template('avaliar_produtos.html', produtos=produtos)
 
+@app.route('/devolucao', methods=['GET', 'POST'])
+def devolucao():
+    if request.method == 'POST':
+        numero_pedido = request.form['numero_pedido']
+        motivo = request.form['motivo']
+        contato = request.form['contato']
+        
+        # Aqui você pode adicionar a lógica para registrar a devolução no banco de dados
+        
+        return render_template('devolucao_confirmacao.html', numero_pedido=numero_pedido)
+    return render_template('devolucao.html')
+
+@app.route('/status_devolucao', methods=['GET'])
+def status_devolucao():
+    numero_pedido = request.args.get('numero_pedido')
+    
+    # Aqui você pode adicionar a lógica para buscar o status da devolução no banco de dados
+    
+    status = "Em processamento"  # Exemplo de status
+    return render_template('status_devolucao.html', numero_pedido=numero_pedido, status=status)
+
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
     app.run(debug=True)
