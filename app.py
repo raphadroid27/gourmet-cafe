@@ -381,6 +381,19 @@ def avaliar_produtos():
     
     return render_template('avaliar_produtos.html', produtos=produtos)
 
+@app.route('/avaliar_produto', methods=['POST'])
+def avaliar_produto():
+    produto_id = request.form['produto_id']
+    nota = request.form['nota']
+    comentario = request.form['comentario']
+    
+    # Aqui você pode adicionar a lógica para salvar a avaliação no banco de dados
+    avaliacao = Avaliacao(produto_id=produto_id, nota=nota, comentario=comentario)
+    db_session.add(avaliacao)
+    db_session.commit()
+    
+    return redirect(url_for('catalogo'))
+
 @app.route('/devolucao', methods=['GET', 'POST'])
 def devolucao():
     if request.method == 'POST':
