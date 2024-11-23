@@ -61,7 +61,10 @@
 
         <div class="centered-form">
             <h2>Login</h2>
-            <form id="loginForm" action="/login" method="post">
+            {% if mensagem %}
+                <div class="alert alert-danger">{{ mensagem }}</div>
+            {% endif %}
+            <form id="loginForm" action="/" method="post">
                 <div class="form-group">
                     <label for="email">Email:</label>
                     <input type="email" id="email" name="email" class="form-control" required>
@@ -81,6 +84,11 @@
         </div>
 
         <div class="centered-form text-center">
+            {% if 'user_id' in session %}
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-block">Logout</a>
+            {% else %}
+                <a href="/" class="btn btn-secondary btn-block">Login</a>
+            {% endif %}
             <a href="{{ url_for('catalogo') }}" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
             <a href="{{ url_for('devolucao') }}" class="btn btn-secondary btn-block">Solicitar Devolução</a>
             <a href="{{ url_for('status_devolucao') }}" class="btn btn-secondary btn-block">Acompanhar Devolução</a>
