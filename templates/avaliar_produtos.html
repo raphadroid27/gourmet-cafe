@@ -22,48 +22,51 @@
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="centered-form">
-            <h1 class="mb-4">Avaliar Produtos</h1>
-            <form action="{{ url_for('avaliar_produtos') }}" method="post">
-                {% for produto in produtos %}
-                <div class="produto-avaliacao mb-4">
-                    <h2>{{ produto.nome }}</h2>
-                    <div class="star-rating" data-produto-id="{{ produto.id }}">
-                        {% for i in range(1, 6) %}
-                            <i class="fa fa-star-o" data-rating="{{ i }}"></i>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" id="nota_{{ produto.id }}" name="nota_{{ produto.id }}" required>
-                    <label for="comentario_{{ produto.id }}">Comentário:</label>
-                    <textarea id="comentario_{{ produto.id }}" name="comentario_{{ produto.id }}" class="form-control"></textarea>
+    <div class="container">
+        <h1>Avaliar Produtos</h1>
+        <form action="{{ url_for('avaliar_produto') }}" method="post">
+            <div class="form-group">
+                <label for="produto">Produto:</label>
+                <select id="produto" name="produto_id" class="form-control" required>
+                    {% for produto in produtos %}
+                    <option value="{{ produto.id }}">{{ produto.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nota">Nota:</label>
+                <div class="star-rating">
+                    <i class="fa fa-star-o" data-rating="1"></i>
+                    <i class="fa fa-star-o" data-rating="2"></i>
+                    <i class="fa fa-star-o" data-rating="3"></i>
+                    <i class="fa fa-star-o" data-rating="4"></i>
+                    <i class="fa fa-star-o" data-rating="5"></i>
                 </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-primary">Enviar Avaliações</button>
-            </form>
-        </div>
+                <input type="hidden" name="nota" id="nota" value="0" required>
+            </div>
+            <div class="form-group">
+                <label for="comentario">Comentário:</label>
+                <textarea id="comentario" name="comentario" class="form-control"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar Avaliação</button>
+        </form>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const starRatings = document.querySelectorAll('.star-rating');
-            starRatings.forEach(starRating => {
-                const stars = starRating.querySelectorAll('.fa');
-                stars.forEach(star => {
-                    star.addEventListener('click', function() {
-                        const rating = this.getAttribute('data-rating');
-                        const produtoId = starRating.getAttribute('data-produto-id');
-                        document.getElementById('nota_' + produtoId).value = rating;
-                        stars.forEach(s => {
-                            if (s.getAttribute('data-rating') <= rating) {
-                                s.classList.remove('fa-star-o');
-                                s.classList.add('fa-star');
-                            } else {
-                                s.classList.remove('fa-star');
-                                s.classList.add('fa-star-o');
-                            }
-                        });
+            const stars = document.querySelectorAll('.star-rating .fa');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = this.getAttribute('data-rating');
+                    document.getElementById('nota').value = rating;
+                    stars.forEach(s => {
+                        s.classList.remove('fa-star');
+                        s.classList.add('fa-star-o');
                     });
+                    for (let i = 0; i < rating; i++) {
+                        stars[i].classList.remove('fa-star-o');
+                        stars[i].classList.add('fa-star');
+                    }
                 });
             });
         });
