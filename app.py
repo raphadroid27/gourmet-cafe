@@ -1,7 +1,7 @@
 from uuid import uuid4
 from flask import Flask, request, render_template, redirect, url_for, jsonify, session
 from email.mime.text import MIMEText
-from models import Usuario, Produto, Avaliacao, session as db_session
+from models import Usuario, Produto, Avaliacao, Feedback, session as db_session
 from functools import wraps
 import hashlib
 import re
@@ -322,6 +322,42 @@ def status_devolucao():
 def area_cliente():
     return "Área do Cliente"
 
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    if request.method == 'POST':
+        sugestao = request.form['sugestao']
+        user_id = session.get('user_id')
+        if user_id:
+            usuario = db_session.query(Usuario).filter_by(email=user_id).first()
+            if usuario:
+                # Salvar feedback no banco de dados
+                novo_feedback = Feedback(usuario_id=user_id, sugestao=sugestao)
+                db_session.add(novo_feedback)
+                db_session.commit()
+                return redirect(url_for('index'))
+        else:
+            return redirect(url_for('login'))
+    return render_template('feedback.html')
+
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
     app.run(debug=True)
+
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from database import Base
+
+class Feedback(Base):
+    __tablename__ = 'feedback'
+    id = Column(Integer, primary_key=True)
+    usuario_id = Column(Integer, ForeignKey('usuario.id'))
+    sugestao = Column(String, nullable=False)
+    usuario = relationship('Usuario', back_populates='feedbacks')
+
+class Usuario(Base):
+    __tablename__ = 'usuario'
+    id = Column(Integer, primary_key=True)
+    nome = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
+    senha = Column(String, nullable=False)
+    feedbacks = relationship('Feedback', back_populates='usuario')

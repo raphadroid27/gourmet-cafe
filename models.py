@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, Column, String, Float, Date, Integer
+from sqlalchemy import create_engine, Column, String, Float, Date, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
+from database import Base, engine, session
 
 # Configurar o banco de dados
 Base = declarative_base()
@@ -13,6 +14,7 @@ class Usuario(Base):
     codigo_recuperacao = Column(String)
     data_nascimento = Column(Date)
     endereco_entrega = Column(String)
+    feedbacks = relationship('Feedback', back_populates='usuario')
 
 class Produto(Base):
     __tablename__ = 'produtos'
@@ -41,8 +43,14 @@ class Avaliacao(Base):
     nota = Column(Integer)
     comentario = Column(String)
 
-# Conectar ao banco de dados SQLite
-engine = create_engine('sqlite:///dbCoffee.db')
+class Feedback(Base):
+    __tablename__ = 'feedback'
+    id = Column(Integer, primary_key=True)
+    usuario_id = Column(String, ForeignKey('usuarios.email'))
+    sugestao = Column(String, nullable=False)
+    usuario = relationship('Usuario', back_populates='feedbacks')
+
+# Criar todas as tabelas
 Base.metadata.create_all(engine)
 
 # Criar uma sessão
