@@ -1,34 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Produto</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <h1>Cadastrar Produto</h1>
-    <form action="/cadastrar_produto" method="post">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required><br>
-        <label for="descricao">Descrição:</label>
-        <input type="text" id="descricao" name="descricao" required><br>
-        <label for="preco">Preço:</label>
-        <input type="text" id="preco" name="preco" required pattern="^\d+(\.\d{1,2})?$" oninput="validarPreco()"><br>
-        <label for="imagem">URL da Imagem:</label>
-        <input type="text" id="imagem" name="imagem" required oninput="atualizarImagem()"><br>
-        <img id="preview" src="" style="max-width: 200px; max-height: 200px;"><br>
-        <label for="tipo">Tipo:</label>
-        <select id="tipo" name="tipo" required>
-            <option value="eletronico">Café</option>
-            <option value="vestuario">Cupcake</option>
-        </select><br><br>
-        <label for="ingredientes">Ingredientes:</label>
-        <input type="text" id="ingredientes" name="ingredientes"><br>
-        <button type="submit">Cadastrar Produto</button>
-    </form>
+{% extends "base.html" %}
 
-    <script>
+{% block title %}Cadastrar Produto{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="centered-form">
+        <h1 class="mb-4">Cadastrar Produto</h1>
+        <form action="{{ url_for('cadastrar_produto') }}" method="post">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <input type="text" id="descricao" name="descricao" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="preco">Preço:</label>
+                <input type="text" id="preco" name="preco" class="form-control" required pattern="^\d+(\.\d{1,2})?$" oninput="validarPreco()">
+            </div>
+            <div class="form-group">
+                <label for="imagem">URL da Imagem:</label>
+                <input type="text" id="imagem" name="imagem" class="form-control" required oninput="atualizarImagem()">
+                <img id="preview" src="" style="max-width: 200px; max-height: 200px;">
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select id="tipo" name="tipo" class="form-control" required>
+                    <option value="cafe">Café</option>
+                    <option value="cupcake">Cupcake</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+<script>
     function atualizarImagem() {
         var url = document.getElementById('imagem').value;
         document.getElementById('preview').src = url;
@@ -38,11 +47,15 @@
         var preco = document.getElementById('preco');
         var regex = /^\d+(\.\d{1,2})?$/;
         if (!regex.test(preco.value)) {
-            preco.setCustomValidity('Por favor, insira um valor monetário válido.');
+            preco.setCustomValidity("Preço inválido. Use o formato 0.00");
         } else {
-            preco.setCustomValidity('');
+            preco.setCustomValidity("");
         }
     }
-    </script>
-</body>
-</html>
+
+    function validarFormulario() {
+        var preco = document.getElementById('preco');
+        validarPreco();
+        return preco.checkValidity();
+    }
+</script>

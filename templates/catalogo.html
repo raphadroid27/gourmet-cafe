@@ -1,50 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Produtos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Catálogo de Produtos</h1>
-        <div class="buttons">
-            <a href="{{ url_for('ver_carrinho') }}" class="btn-ver-carrinho">
-                <i class="fas fa-shopping-cart"></i> Ver Carrinho
-            </a>
-            <a href="{{ url_for('devolucao') }}" class="btn btn-secondary">
-                <i class="fas fa-undo"></i> Solicitar Devolução
-            </a>
-        </div>
+{% extends "base.html" %}
 
-        <!-- Formulário de Busca -->
-        <form method="GET" action="/catalogo">
-            <input type="text" name="search" placeholder="Buscar por nome">
-            <select name="tipo">
-                <option value="">Todos os Tipos</option>
-                <option value="cafe">Café</option>
-                <option value="cupcake">Cupcake</option>
-            </select>
-            <button type="submit">Buscar</button>
+{% block title %}Catálogo de Produtos{% endblock %}
+
+{% block content %}
+<h1>Catálogo de Produtos</h1>
+<div class="buttons">
+    <a href="{{ url_for('ver_carrinho') }}" class="btn-ver-carrinho">
+        <i class="fas fa-shopping-cart"></i> Ver Carrinho
+    </a>
+    <a href="{{ url_for('devolucao') }}" class="btn btn-secondary">
+        <i class="fas fa-undo"></i> Solicitar Devolução
+    </a>
+</div>
+
+<!-- Formulário de Busca -->
+<form method="GET" action="/catalogo">
+    <input type="text" name="search" placeholder="Buscar por nome">
+    <select name="tipo">
+        <option value="">Todos os Tipos</option>
+        <option value="cafe">Café</option>
+        <option value="cupcake">Cupcake</option>
+    </select>
+    <button type="submit">Buscar</button>
+</form>
+
+<div id="produtos">
+    {% for produto in produtos %}
+    <div class="produto">
+        <h2>{{ produto.nome }}</h2>
+        <p>{{ produto.descricao }}</p>
+        <p>Preço: {{ produto.preco }}</p>
+        <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+        <form action="/adicionar_ao_carrinho" method="post">
+            <input type="hidden" name="produto_id" value="{{ produto.id }}">
+            <button type="submit">Adicionar ao Carrinho</button>
         </form>
-
-        <div id="produtos">
-            {% for produto in produtos %}
-            <div class="produto">
-                <h2>{{ produto.nome }}</h2>
-                <p>{{ produto.descricao }}</p>
-                <p>Preço: {{ produto.preco }}</p>
-                <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
-                <form action="/adicionar_ao_carrinho" method="post">
-                    <input type="hidden" name="produto_id" value="{{ produto.id }}">
-                    <button type="submit">Adicionar ao Carrinho</button>
-                </form>
-                <a href="{{ url_for('ver_produto', produto_id=produto.id) }}" class="btn-detalhes-produto">Ver Detalhes</a>
-            </div>
-            {% endfor %}
-        </div>
+        <a href="{{ url_for('ver_produto', produto_id=produto.id) }}" class="btn-detalhes-produto">Ver Detalhes</a>
     </div>
-</body>
-</html>
+    {% endfor %}
+</div>
+{% endblock %}

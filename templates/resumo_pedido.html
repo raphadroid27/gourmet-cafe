@@ -1,26 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumo do Pedido</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <h1>Resumo do Pedido</h1>
-    <div id="pedido">
-        {% if intensidade %}
-        <p><strong>Intensidade do Café:</strong> {{ intensidade }}</p>
-        {% endif %}
-        {% if adicionais %}
-        <p><strong>Adicionais:</strong> {{ adicionais | join(', ') }}</p>
-        {% endif %}
-        {% if cobertura %}
-        <p><strong>Cobertura do Cupcake:</strong> {{ cobertura }}</p>
-        {% endif %}
-        {% if ingredientes_adicionais %}
-        <p><strong>Ingredientes Adicionais:</strong> {{ ingredientes_adicionais | join(', ') }}</p>
-        {% endif %}
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Resumo do Pedido{% endblock %}
+
+{% block content %}
+<h1>Resumo do Pedido</h1>
+<div id="pedido">
+    {% if intensidade %}
+    <p><strong>Intensidade do Café:</strong> {{ intensidade }}</p>
+    {% endif %}
+    {% if adicionais %}
+    <p><strong>Adicionais:</strong> {{ adicionais | join(', ') }}</p>
+    {% endif %}
+    {% if cobertura %}
+    <p><strong>Cobertura do Cupcake:</strong> {{ cobertura }}</p>
+    {% endif %}
+    {% if ingredientes_adicionais %}
+    <p><strong>Ingredientes Adicionais:</strong> {{ ingredientes_adicionais | join(', ') }}</p>
+    {% endif %}
+</div>
+{% endblock %}

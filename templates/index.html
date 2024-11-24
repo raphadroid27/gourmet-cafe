@@ -1,6 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base.html" %}
+
+{% block title %}Cadastro e login{% endblock %}
+
+{% block content %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Login</title>
@@ -34,9 +36,7 @@
             position: relative;
         }
     </style>
-</head>
 <body>
-    <div class="container">
         <div class="centered-form">
             <h2>Cadastro</h2>
             <form id="cadastroForm" action="/cadastrar" method="post">
@@ -93,8 +93,7 @@
             <a href="{{ url_for('devolucao') }}" class="btn btn-secondary btn-block">Solicitar Devolução</a>
             <a href="{{ url_for('status_devolucao') }}" class="btn btn-secondary btn-block">Acompanhar Devolução</a>
         </div>
-    </div>
-
+    {% endblock %}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

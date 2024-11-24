@@ -1,6 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base.html" %}
+
+{% block title %}Carrinho{% endblock %}
+
+{% block content %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrinho de Compras</title>
@@ -49,6 +51,7 @@
             <a href="{{ url_for('catalogo') }}" class="btn btn-secondary">Continuar Comprando</a>
         </div>
     </div>
+    {% endblock %}
 
     <script>
         $(document).ready(function() {

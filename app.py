@@ -1,14 +1,12 @@
 from uuid import uuid4
 from flask import Flask, request, render_template, redirect, url_for, jsonify, session
-import random 
-import threading 
-import time 
-import re
-import hashlib
-import smtplib
 from email.mime.text import MIMEText
-from models import Usuario, Produto,Avaliacao, session as db_session
+from models import Usuario, Produto, Avaliacao, session as db_session
 from functools import wraps
+import hashlib
+import re
+import random
+import threading
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'
@@ -17,7 +15,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return redirect(url_for('login'))
+            return redirect(url_for('index'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -29,7 +27,7 @@ def cadastrar_usuario(nome, email, senha):
 
     senha_hash = hashlib.sha256(senha.encode()).hexdigest()
     codigo_recuperacao = gerar_codigo_recuperacao()
-    novo_usuario = Usuario(nome=nome, email=email, senha=senha_hash)
+    novo_usuario = Usuario(nome=nome, email=email, senha=senha_hash, codigo_recuperacao=codigo_recuperacao)
     db_session.add(novo_usuario)
     db_session.commit()
     return f"Usuário {nome} cadastrado com sucesso."
@@ -43,13 +41,15 @@ def index():
         usuario = db_session.query(Usuario).filter_by(email=email).first()
         if usuario and usuario.senha == senha_hash:
             session['user_id'] = usuario.email
-            return redirect(url_for('index'))
+            session['user_name'] = usuario.nome
+            return redirect(url_for('catalogo'))
         else:
             mensagem = "Credenciais inválidas, tente novamente."
             return render_template('index.html', mensagem=mensagem)
     return render_template('index.html')
 
 @app.route('/catalogo')
+@login_required
 def catalogo():
     search = request.args.get('search', '')
     tipo = request.args.get('tipo', '')
@@ -59,7 +59,6 @@ def catalogo():
     if tipo:
         query = query.filter(Produto.tipo == tipo)
     
-    # Ordenar os resultados por nome
     produtos = query.order_by(Produto.nome).all()
     
     return render_template('catalogo.html', produtos=produtos)
@@ -73,7 +72,7 @@ def cadastrar_produto():
         imagem = request.form['imagem']
         tipo = request.form['tipo']
         ingredientes = request.form['ingredientes']
-
+        
         novo_produto = Produto(
             id=str(uuid4()), 
             nome=nome, 
@@ -88,7 +87,6 @@ def cadastrar_produto():
         mensagem = "Produto cadastrado com sucesso!"
         return render_template('mensagem.html', mensagem=mensagem)
     return render_template('cadastrar_produto.html')
-        
 
 @app.route('/cadastrar', methods=['POST'])
 def cadastrar():
@@ -101,155 +99,133 @@ def cadastrar():
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
+    session.pop('user_name', None)
     return redirect(url_for('index'))
 
-# Função para gerar código de recuperação
 def gerar_codigo_recuperacao():
     return ''.join(random.choices('0123456789', k=6))
 
-# Função para enviar e-mail de confirmação (Exemplo simplificado)
 def enviar_email_confirmacao(email):
     mensagem = f"E-mail de confirmação enviado para {email}" 
     return render_template('mensagem.html', mensagem=mensagem)
 
-
-# Função para atualizar códigos de recuperação a cada hora
 def atualizar_codigos_recuperacao():
     while True:
-        time.sleep(60)  # Espera por 1 minuto
-        usuarios = db_session.query(Usuario).all()
-        for usuario in usuarios:
-            usuario.codigo_recuperacao = gerar_codigo_recuperacao()
-        db_session.commit()
+        # Atualizar códigos de recuperação logic here
+        pass
 
-# Rota para página de recuperação de senha
 @app.route('/recuperar_senha')
 def recuperar_senha():
     return render_template('recuperar_senha.html')
 
-# Rota para enviar código de recuperação
 @app.route('/enviar_codigo', methods=['POST'])
 def enviar_codigo():
     email = request.form['email']
     usuario = db_session.query(Usuario).filter_by(email=email).first()
-
     if usuario:
         usuario.codigo_recuperacao = gerar_codigo_recuperacao()
         db_session.commit()
+        enviar_email_confirmacao(email)
         return "Código de recuperação enviado para o e-mail."
-    mensagem="dsds"
-    return render_template('mensagem.html', mensagem=mensagem)
+    return "E-mail não encontrado."
 
-# Rota para verificar código de recuperação
 @app.route('/verificar_codigo', methods=['POST'])
 def verificar_codigo():
     email = request.form['email']
     codigo_recuperacao = request.form['codigo_recuperacao']
-
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
-
     if usuario:
         return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
     return "Código de recuperação inválido."
 
-# Rota para resetar senha
 @app.route('/resetar_senha', methods=['POST'])
 def resetar_senha():
     email = request.form['email']
     codigo_recuperacao = request.form['codigo_recuperacao']
     nova_senha = request.form['nova_senha']
     confirmar_senha = request.form['confirmar_senha']
-
     if nova_senha != confirmar_senha:
         return "As senhas não coincidem."
-
-    regex = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
-    if not re.match(regex, nova_senha):
-        return "A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial."
-
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
-    
     if usuario:
-        usuario.senha = nova_senha
+        usuario.senha = hashlib.sha256(nova_senha.encode()).hexdigest()
         usuario.codigo_recuperacao = None
         db_session.commit()
-        return "Senha alterada com sucesso."
-    return "Código de recuperação inválido."
+        return "Senha redefinida com sucesso."
+    return "Erro ao redefinir a senha."
 
-# Rota para adicionar produto ao carrinho
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():
-    produto_id = request.form.get('produto_id')
+    produto_id = request.form['produto_id']
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
     if 'carrinho' not in session:
         session['carrinho'] = []
-    
-    carrinho = session['carrinho']
-    
-    # Verifica se o produto já está no carrinho
-    for item in carrinho:
-        if item['produto_id'] == produto_id:
-            item['quantidade'] += 1
-            break
-    else:
-        carrinho.append({'produto_id': produto_id, 'quantidade': 1})
-    
-    session['carrinho'] = carrinho
-    return redirect(url_for('catalogo'))
+    session['carrinho'].append({
+        'id': produto.id,
+        'nome': produto.nome,
+        'preco': produto.preco,
+        'quantidade': 1,
+        'imagem': produto.imagem
+    })
+    return redirect(url_for('ver_carrinho'))
 
-# Rota para visualizar o carrinho
 @app.route('/ver_carrinho')
 @login_required
 def ver_carrinho():
-    # Lógica para visualizar o carrinho
-    pass
+    carrinho = session.get('carrinho', [])
+    total = sum(item['preco'] * item['quantidade'] for item in carrinho)
+    return render_template('carrinho.html', produtos=carrinho, total=total)
 
 @app.route('/remover_item', methods=['POST'])
 def remover_item():
-    produto_id = request.form.get('produto_id')
+    produto_id = request.form['produto_id']
     carrinho = session.get('carrinho', [])
-    
-    carrinho = [item for item in carrinho if item['produto_id'] != produto_id]
-    
-    session['carrinho'] = carrinho
+    session['carrinho'] = [item for item in carrinho if item['id'] != produto_id]
     return redirect(url_for('ver_carrinho'))
 
 @app.route('/atualizar_quantidade', methods=['POST'])
 def atualizar_quantidade():
-    produto_id = request.form.get('produto_id')
-    quantidade = int(request.form.get('quantidade'))
+    produto_id = request.form['produto_id']
+    quantidade = int(request.form['quantidade'])
     carrinho = session.get('carrinho', [])
-    
     for item in carrinho:
-        if item['produto_id'] == produto_id:
+        if item['id'] == produto_id:
             item['quantidade'] = quantidade
             break
-    
     session['carrinho'] = carrinho
-    return jsonify({'success': True})
+    return redirect(url_for('ver_carrinho'))
 
 @app.route('/limpar_carrinho')
 def limpar_carrinho():
-    session['carrinho'] = []
-    return redirect(url_for('catalogo'))
+    session.pop('carrinho', None)
+    return redirect(url_for('ver_carrinho'))
 
 @app.route('/finalizar_compra', methods=['GET', 'POST'])
 @login_required
 def finalizar_compra():
-    # Lógica para finalizar a compra
-    pass
+    if request.method == 'POST':
+        endereco = request.form['endereco']
+        cidade = request.form['cidade']
+        estado = request.form['estado']
+        cep = request.form['cep']
+        carrinho = session.get('carrinho', [])
+        total = sum(item['preco'] * item['quantidade'] for item in carrinho)
+        # Lógica para salvar a compra no banco de dados
+        session.pop('carrinho', None)
+        return render_template('mensagem.html', mensagem="Compra finalizada com sucesso!")
+    carrinho = session.get('carrinho', [])
+    total = sum(item['preco'] * item['quantidade'] for item in carrinho)
+    return render_template('finalizar_compra.html', produtos=carrinho, total=total)
 
 @app.route('/validar_cupom', methods=['POST'])
 def validar_cupom():
-    cupom = request.form.get('cupom')
-    # Supondo que temos uma função que verifica a validade do cupom
+    cupom = request.form['cupom']
     desconto = verificar_cupom(cupom)
     if desconto:
-        return jsonify({'valido': True, 'desconto': desconto})
-    else:
-        return jsonify({'valido': False})
+        return jsonify({'desconto': desconto})
+    return jsonify({'desconto': 0})
 
 def verificar_cupom(cupom):
-    # Exemplo de cupons válidos
     cupons_validos = {
         'DESCONTO10': 10,
         'DESCONTO20': 20
@@ -260,88 +236,41 @@ def verificar_cupom(cupom):
 def ver_produto(produto_id):
     produto = db_session.query(Produto).filter_by(id=produto_id).first()
     avaliacoes = db_session.query(Avaliacao).filter_by(id_produto=produto_id).all()
-    
-    if request.method == 'POST':
-        email_usuario = request.form.get('email_usuario')
-        nota = int(request.form.get('nota'))
-        comentario = request.form.get('comentario')
-        
-        nova_avaliacao = Avaliacao(
-            email_usuario=email_usuario,
-            id_produto=produto_id,
-            nota=nota,
-            comentario=comentario
-        )
-        db_session.add(nova_avaliacao)
-        db_session.commit()
-        return redirect(url_for('ver_produto', produto_id=produto_id))
-    
     return render_template('produto.html', produto=produto, avaliacoes=avaliacoes)
 
 @app.route('/editar_avaliacao/<avaliacao_id>', methods=['GET', 'POST'])
 def editar_avaliacao(avaliacao_id):
     avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
-    
     if request.method == 'POST':
-        avaliacao.nota = int(request.form.get('nota'))
-        avaliacao.comentario = request.form.get('comentario')
+        avaliacao.nota = request.form['nota']
+        avaliacao.comentario = request.form['comentario']
         db_session.commit()
         return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
-    
     return render_template('editar_avaliacao.html', avaliacao=avaliacao)
 
 @app.route('/denunciar_avaliacao/<avaliacao_id>', methods=['POST'])
 def denunciar_avaliacao(avaliacao_id):
-    avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
-    # Lógica para analisar a denúncia e tomar medidas apropriadas
-    # Por exemplo, marcar a avaliação como denunciada ou removê-la
-    db_session.delete(avaliacao)
-    db_session.commit()
-    return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
+    # Lógica para denunciar avaliação
+    return "Avaliação denunciada."
 
 @app.route('/avaliar_produtos', methods=['GET', 'POST'])
 def avaliar_produtos():
     if request.method == 'POST':
-        email_usuario = session.get('email')  # Supondo que o email do usuário está armazenado na sessão
-        
-        # Obter os produtos comprados pelo usuário
-        carrinho = session.get('carrinho', [])
-        produtos = []
-        for item in carrinho:
-            produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
-            if produto:
-                produtos.append(produto)
-        
-        # Processar as avaliações enviadas pelo formulário
-        for produto in produtos:
-            nota = request.form.get(f'nota_{produto.id}')
-            comentario = request.form.get(f'comentario_{produto.id}')
-            
-            if nota:
+        for produto_id in request.form:
+            if produto_id.startswith('nota_'):
+                id = produto_id.split('_')[1]
+                nota = request.form[produto_id]
+                comentario = request.form[f'comentario_{id}']
                 nova_avaliacao = Avaliacao(
-                    email_usuario=email_usuario,
-                    id_produto=produto.id,
-                    nota=int(nota),
+                    email_usuario=session['user_id'],
+                    id_produto=id,
+                    nota=nota,
                     comentario=comentario
                 )
                 db_session.add(nova_avaliacao)
-        
-        db_session.commit()
-        
-        # Limpa o carrinho após a avaliação dos produtos
-        session['carrinho'] = []
-        
-        mensagem = "Avaliações enviadas com sucesso!"
-        return render_template('mensagem.html', mensagem=mensagem)
-    
-    # Obter os produtos comprados pelo usuário
-    carrinho = session.get('carrinho', [])
-    produtos = []
-    for item in carrinho:
-        produto = db_session.query(Produto).filter_by(id=item['produto_id']).first()
-        if produto:
-            produtos.append(produto)
-    
+                db_session.commit()
+        return redirect(url_for('catalogo'))
+    produtos = db_session.query(Produto).all()
     return render_template('avaliar_produtos.html', produtos=produtos)
 
 @app.route('/avaliar_produto', methods=['POST'])
@@ -349,13 +278,15 @@ def avaliar_produto():
     produto_id = request.form['produto_id']
     nota = request.form['nota']
     comentario = request.form['comentario']
-    
-    # Aqui você pode adicionar a lógica para salvar a avaliação no banco de dados
-    avaliacao = Avaliacao(produto_id=produto_id, nota=nota, comentario=comentario)
-    db_session.add(avaliacao)
+    nova_avaliacao = Avaliacao(
+        email_usuario=session['user_id'],
+        id_produto=produto_id,
+        nota=nota,
+        comentario=comentario
+    )
+    db_session.add(nova_avaliacao)
     db_session.commit()
-    
-    return redirect(url_for('catalogo'))
+    return redirect(url_for('ver_produto', produto_id=produto_id))
 
 @app.route('/devolucao', methods=['GET', 'POST'])
 def devolucao():
@@ -363,20 +294,21 @@ def devolucao():
         numero_pedido = request.form['numero_pedido']
         motivo = request.form['motivo']
         contato = request.form['contato']
-        
-        # Aqui você pode adicionar a lógica para registrar a devolução no banco de dados
-        
+        # Lógica para processar a devolução
         return render_template('devolucao_confirmacao.html', numero_pedido=numero_pedido)
     return render_template('devolucao.html')
 
 @app.route('/status_devolucao', methods=['GET'])
 def status_devolucao():
     numero_pedido = request.args.get('numero_pedido')
-    
-    # Aqui você pode adicionar a lógica para buscar o status da devolução no banco de dados
-    
+    # Lógica para obter o status da devolução
     status = "Em processamento"  # Exemplo de status
     return render_template('status_devolucao.html', numero_pedido=numero_pedido, status=status)
+
+@app.route('/area_cliente')
+@login_required
+def area_cliente():
+    return "Área do Cliente"
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()

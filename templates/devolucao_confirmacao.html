@@ -1,18 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devolução Solicitada</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <div class="centered-form">
-            <h1>Devolução Solicitada</h1>
-            <p>Sua solicitação de devolução para o pedido número {{ numero_pedido }} foi registrada com sucesso.</p>
-            <p>Em breve, você receberá instruções sobre como proceder com a devolução.</p>
-        </div>
+{% extends "base.html" %}
+
+{% block title %}Devolução Solicitada{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="centered-form">
+        <h1>Devolução Solicitada</h1>
+        <p>Sua solicitação de devolução para o pedido número {{ numero_pedido }} foi registrada com sucesso.</p>
+        <p>Em breve, você receberá instruções sobre como proceder com a devolução.</p>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
