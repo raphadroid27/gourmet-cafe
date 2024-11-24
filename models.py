@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 
 # Configurar o banco de dados
 Base = declarative_base()
+engine = create_engine('sqlite:///dbCoffee.db')
 
 class Usuario(Base):
     __tablename__ = 'usuarios'
@@ -13,6 +14,7 @@ class Usuario(Base):
     codigo_recuperacao = Column(String)
     data_nascimento = Column(Date)
     endereco_entrega = Column(String)
+    feedbacks = relationship('Feedback', back_populates='usuario')
 
 class Produto(Base):
     __tablename__ = 'produtos'
@@ -48,9 +50,15 @@ class ItensCompra(Base):
     id_produto = Column(String, ForeignKey('produtos.id'), nullable=False)
     quantidade = Column(Integer, nullable=False)
     preco_unitario = Column(Float, nullable=False)
-
     compra = relationship('Compra', back_populates='itens')
     produto = relationship('Produto')
+
+class Feedback(Base):
+    __tablename__ = 'feedback'
+    id = Column(Integer, primary_key=True)
+    usuario_id = Column(String, ForeignKey('usuarios.email'))
+    sugestao = Column(String, nullable=False)
+    usuario = relationship('Usuario', back_populates='feedbacks')
 
 # Conectar ao banco de dados SQLite
 engine = create_engine('sqlite:///dbCoffee.db')
