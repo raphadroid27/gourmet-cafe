@@ -49,7 +49,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/catalogo')
-@login_required
+#@login_required
 def catalogo():
     search = request.args.get('search', '')
     tipo = request.args.get('tipo', '')
@@ -156,24 +156,40 @@ def resetar_senha():
 
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():
-    produto_id = request.form['produto_id']
+    produto_id = request.form.get('produto_id')
+    if not produto_id:
+        return jsonify({'error': 'Produto ID não fornecido'}), 400
+
     produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    if not produto:
+        return jsonify({'error': 'Produto não encontrado'}), 404
+
     if 'carrinho' not in session:
         session['carrinho'] = []
-    session['carrinho'].append({
-        'id': produto.id,
-        'nome': produto.nome,
-        'preco': produto.preco,
-        'quantidade': 1,
-        'imagem': produto.imagem
-    })
-    return redirect(url_for('ver_carrinho'))
+
+    # Verifica se o produto já está no carrinho
+    for item in session['carrinho']:
+        if item['id'] == produto.id:
+            item['quantidade'] += 1
+            break
+    else:
+        session['carrinho'].append({
+            'id': produto.id,
+            'nome': produto.nome,
+            'preco': produto.preco,
+            'quantidade': 1,
+            'imagem': produto.imagem
+        })
+
+    session.modified = True
+    return redirect(url_for('catalogo'))
 
 @app.route('/ver_carrinho')
-@login_required
 def ver_carrinho():
     carrinho = session.get('carrinho', [])
     total = sum(item['preco'] * item['quantidade'] for item in carrinho)
+    for item in carrinho:
+        item['subtotal'] = item['preco'] * item['quantidade']
     return render_template('carrinho.html', produtos=carrinho, total=total)
 
 @app.route('/remover_item', methods=['POST'])
