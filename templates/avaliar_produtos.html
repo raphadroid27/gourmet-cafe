@@ -7,19 +7,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        .star-rating {
-            font-size: 1.5rem;
-            color: #FFD700;
-            cursor: pointer;
-        }
-        .star-rating .fa-star {
-            color: #FFD700;
-        }
-        .star-rating .fa-star-o {
-            color: #ccc;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -36,11 +23,11 @@
             <div class="form-group">
                 <label for="nota">Nota:</label>
                 <div class="star-rating">
-                    <i class="fa fa-star-o" data-rating="1"></i>
-                    <i class="fa fa-star-o" data-rating="2"></i>
-                    <i class="fa fa-star-o" data-rating="3"></i>
-                    <i class="fa fa-star-o" data-rating="4"></i>
-                    <i class="fa fa-star-o" data-rating="5"></i>
+                    <button type="button" class="star-btn" data-rating="1"><i class="fa fa-star-o"></i></button>
+                    <button type="button" class="star-btn" data-rating="2"><i class="fa fa-star-o"></i></button>
+                    <button type="button" class="star-btn" data-rating="3"><i class="fa fa-star-o"></i></button>
+                    <button type="button" class="star-btn" data-rating="4"><i class="fa fa-star-o"></i></button>
+                    <button type="button" class="star-btn" data-rating="5"><i class="fa fa-star-o"></i></button>
                 </div>
                 <input type="hidden" name="nota" id="nota" value="0" required>
             </div>
@@ -54,18 +41,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const stars = document.querySelectorAll('.star-rating .fa');
+            const stars = document.querySelectorAll('.star-btn');
             stars.forEach(star => {
                 star.addEventListener('click', function() {
                     const rating = this.getAttribute('data-rating');
                     document.getElementById('nota').value = rating;
                     stars.forEach(s => {
-                        s.classList.remove('fa-star');
-                        s.classList.add('fa-star-o');
+                        s.querySelector('i').classList.remove('fa-star');
+                        s.querySelector('i').classList.add('fa-star-o');
                     });
                     for (let i = 0; i < rating; i++) {
-                        stars[i].classList.remove('fa-star-o');
-                        stars[i].classList.add('fa-star');
+                        stars[i].querySelector('i').classList.remove('fa-star-o');
+                        stars[i].querySelector('i').classList.add('fa-star');
                     }
                 });
             });
