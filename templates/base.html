@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
 </head>
 <body>
     <div class="container">
         {% if session.get('user_name') %}
-        <div class="user-info">
+        <div class="user-info text-right">
             <span>Bem-vindo, {{ session['user_name'] }}!</span>
             <a href="{{ url_for('area_cliente') }}">Área do Cliente</a> |
             <a href="{{ url_for('logout') }}">Logoff</a>

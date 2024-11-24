@@ -52,12 +52,8 @@ def index():
 #@login_required
 def catalogo():
     search = request.args.get('search', '')
-    tipo = request.args.get('tipo', '')
     
     query = db_session.query(Produto).filter(Produto.nome.like(f'%{search}%'))
-    
-    if tipo:
-        query = query.filter(Produto.tipo == tipo)
     
     produtos = query.order_by(Produto.nome).all()
     
