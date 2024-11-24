@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
 </head>
 <body>
     <div class="container">
@@ -15,7 +14,7 @@
         <div class="user-info text-right">
             <span>Bem-vindo, {{ session['user_name'] }}!</span>
             <a href="{{ url_for('area_cliente') }}">Área do Cliente</a> |
-            <a href="{{ url_for('logout') }}">Logoff</a>
+            <a href="{{ url_for('logout') }}">Sair</a>
         </div>
         {% endif %}
         {% block content %}{% endblock %}

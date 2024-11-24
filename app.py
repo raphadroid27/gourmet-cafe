@@ -1,12 +1,13 @@
 from uuid import uuid4
 from flask import Flask, request, render_template, redirect, url_for, jsonify, session
 from email.mime.text import MIMEText
-from models import Usuario, Produto, Avaliacao, session as db_session
+from models import Usuario, Produto, Avaliacao, Compra, ItensCompra, session as db_session
 from functools import wraps
 import hashlib
 import re
 import random
 import threading
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'
@@ -222,9 +223,43 @@ def finalizar_compra():
         cep = request.form['cep']
         carrinho = session.get('carrinho', [])
         total = sum(item['preco'] * item['quantidade'] for item in carrinho)
-        # Lógica para salvar a compra no banco de dados
+        
+        # Obter o último código de pedido e gerar o próximo código sequencial
+        ultimo_pedido = db_session.query(Compra).order_by(Compra.id.desc()).first()
+        if ultimo_pedido:
+            codigo_pedido = int(ultimo_pedido.id) + 1
+        else:
+            codigo_pedido = 1
+        
+        # Salvar a compra no banco de dados
+        nova_compra = Compra(
+            id=codigo_pedido,
+            email_usuario=session['user_id'],
+            data_compra=datetime.now().date(),
+            quantidade=len(carrinho),
+            preco_total=total
+        )
+        db_session.add(nova_compra)
+        db_session.commit()
+        
+        # Salvar os itens comprados na tabela ItensCompra
+        for item in carrinho:
+            novo_item = ItensCompra(
+                id_compra=codigo_pedido,
+                id_produto=item['id'],
+                quantidade=item['quantidade'],
+                preco_unitario=item['preco']
+            )
+            db_session.add(novo_item)
+        
+        db_session.commit()
+        
+        # Limpar o carrinho
         session.pop('carrinho', None)
-        return render_template('mensagem.html', mensagem="Compra finalizada com sucesso!")
+        
+        # Redirecionar para o catálogo com uma mensagem de sucesso
+        return redirect(url_for('catalogo', mensagem=f"Compra finalizada com sucesso! Código do pedido: {codigo_pedido}"))
+    
     carrinho = session.get('carrinho', [])
     total = sum(item['preco'] * item['quantidade'] for item in carrinho)
     return render_template('finalizar_compra.html', produtos=carrinho, total=total)
@@ -320,7 +355,36 @@ def status_devolucao():
 @app.route('/area_cliente')
 @login_required
 def area_cliente():
-    return "Área do Cliente"
+    usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
+    pedidos = db_session.query(Compra).filter_by(email_usuario=session['user_id']).all()
+    avaliacoes = db_session.query(Avaliacao).filter_by(email_usuario=session['user_id']).all()
+    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes)
+
+@app.route('/editar_usuario', methods=['GET', 'POST'])
+@login_required
+def editar_usuario():
+    usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
+    if request.method == 'POST':
+        usuario.nome = request.form['nome']
+        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%Y-%m-%d').date()
+        usuario.endereco_entrega = request.form['endereco_entrega']
+        db_session.commit()
+        return redirect(url_for('area_cliente'))
+    return render_template('editar_usuario.html', usuario=usuario)
+
+@app.route('/detalhes_pedido/<int:pedido_id>')
+@login_required
+def detalhes_pedido(pedido_id):
+    pedido = db_session.query(Compra).filter_by(id=pedido_id).first()
+    if not pedido:
+        return "Pedido não encontrado", 404
+    itens = db_session.query(ItensCompra).filter_by(id_compra=pedido_id).all()
+    
+    # Adicione prints para verificar os dados
+    print(f"Pedido: {pedido}")
+    print(f"Itens: {itens}")
+    
+    return render_template('detalhes_pedido.html', pedido=pedido, itens=itens)
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()

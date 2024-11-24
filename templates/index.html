@@ -1,8 +1,6 @@
-{% extends "base.html" %}
-
-{% block title %}Cadastro e login{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<body>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Login</title>
@@ -84,16 +82,8 @@
     </div>
 
     <div class="centered-form text-center">
-        {% if 'user_id' in session %}
-            <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-block">Logout</a>
-        {% else %}
-            <a href="/" class="btn btn-secondary btn-block">Login</a>
-        {% endif %}
-        <a href="{{ url_for('catalogo') }}" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
-        <a href="{{ url_for('devolucao') }}" class="btn btn-secondary btn-block">Solicitar Devolução</a>
-        <a href="{{ url_for('status_devolucao') }}" class="btn btn-secondary btn-block">Acompanhar Devolução</a>
+    <a href="{{ url_for('catalogo') }}" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
     </div>
-{% endblock %}
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
