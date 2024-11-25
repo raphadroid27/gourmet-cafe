@@ -7,10 +7,10 @@
 <form id="recuperarSenhaForm" action="/verificar_codigo" method="post">
     <label for="emailRecuperacao">E-mail:</label>
     <input type="email" id="emailRecuperacao" name="email" required><br>
-    <button type="button" onclick="enviarCodigo()">Enviar Código por E-mail</button><br><br>
+    <button type="button" class="btn-primary" onclick="enviarCodigo()">Enviar Código por E-mail</button><br><br>
     <label for="codigoRecuperacao">Código de Recuperação:</label>
     <input type="text" id="codigoRecuperacao" name="codigo_recuperacao" required disabled><br>
-    <button type="submit" id="verificarCodigoBotao" disabled>Verificar Código</button>
+    <button type="submit" class="btn-primary" id="verificarCodigoBotao" disabled>Verificar Código</button>
 </form>
 <script>
     function enviarCodigo() {

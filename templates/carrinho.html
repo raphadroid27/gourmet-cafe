@@ -3,7 +3,7 @@
 {% block title %}Carrinho{% endblock %}
 
 {% block content %}
-<div class="centered-form">
+
     <h1>Carrinho de Compras</h1>
     <table class="table">
         <thead>
@@ -37,8 +37,11 @@
         </tbody>
     </table>
     <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
+
+    <div class="text-center">
     <a href="{{ url_for('finalizar_compra') }}" class="btn btn-primary">Finalizar Compra</a>
     <a href="{{ url_for('limpar_carrinho') }}" class="btn btn-secondary">Limpar Carrinho</a>
     <a href="{{ url_for('catalogo') }}" class="btn btn-secondary">Continuar Comprando</a>
-</div>
+    </div>
+
 {% endblock %}

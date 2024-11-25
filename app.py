@@ -147,15 +147,27 @@ def resetar_senha():
     codigo_recuperacao = request.form['codigo_recuperacao']
     nova_senha = request.form['nova_senha']
     confirmar_senha = request.form['confirmar_senha']
+    
+    # Validação da senha
+    regex = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+    if not regex.match(nova_senha):
+        mensagem = "A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial."
+        return render_template('mensagem.html', mensagem=mensagem)
+    
     if nova_senha != confirmar_senha:
-        return "As senhas não coincidem."
+        mensagem = "As senhas não coincidem. Por favor, tente novamente."
+        return render_template('mensagem.html', mensagem=mensagem)
+    
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
     if usuario:
         usuario.senha = hashlib.sha256(nova_senha.encode()).hexdigest()
         usuario.codigo_recuperacao = None
         db_session.commit()
-        return "Senha redefinida com sucesso."
-    return "Erro ao redefinir a senha."
+        mensagem = "Senha redefinida com sucesso."
+        return render_template('mensagem.html', mensagem=mensagem)
+    
+    mensagem = "Erro ao redefinir a senha."
+    return render_template('mensagem.html', mensagem=mensagem)
 
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():

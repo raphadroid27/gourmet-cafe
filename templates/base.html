@@ -9,21 +9,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" >
+        
         {% if session.get('user_name') %}
-        <div class="user-info text-right">
+        <div  class="user-info text-left">
             <span>Bem-vindo, {{ session['user_name'] }}!</span>
-            <a href="{{ url_for('area_cliente') }}">Área do Cliente</a> |
-            <a href="{{ url_for('logout') }}">Sair</a>
         </div>
         {% endif %}
+
+      <div class="navigation-links text-right">
+            <a href="{{ url_for('catalogo') }}" class="btn btn-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            {% if session.get('user_name') %}
+            <a href="{{ url_for('area_cliente') }}" class="btn btn-link">
+                <i class="fas fa-user"></i> Área do Cliente
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-link">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+            {% else %}
+            <a href="{{ url_for('index') }}" class="btn btn-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            {% endif %}
+        </div>
+    
         {% block content %}{% endblock %}
     </div>
-
-    
-        <a href="{{ url_for('feedback') }}" >Enviar Feedback</a>
-
-
+    <a href="{{ url_for('feedback') }}">Enviar Feedback</a>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
