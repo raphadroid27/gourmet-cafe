@@ -129,8 +129,10 @@ def enviar_codigo():
         usuario.codigo_recuperacao = gerar_codigo_recuperacao()
         db_session.commit()
         enviar_email_confirmacao(email)
-        return "Código de recuperação enviado para o e-mail."
-    return "E-mail não encontrado."
+        mensagem= "Código de recuperação enviado para o e-mail."
+        return render_template('recuperar_senha.html', mensagem=mensagem)
+    mensagem2 = "E-mail não encontrado."
+    return render_template('recuperar_senha.html', mensagem2=mensagem2)
 
 @app.route('/verificar_codigo', methods=['POST'])
 def verificar_codigo():
@@ -139,7 +141,7 @@ def verificar_codigo():
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
     if usuario:
         return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
-    return "Código de recuperação inválido."
+    return render_template('recuperar_senha.html', mensagem="Código de recuperação inválido.")
 
 @app.route('/resetar_senha', methods=['POST'])
 def resetar_senha():
@@ -151,23 +153,18 @@ def resetar_senha():
     # Validação da senha
     regex = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
     if not regex.match(nova_senha):
-        mensagem = "A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial."
-        return render_template('mensagem.html', mensagem=mensagem)
+        return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.")
     
     if nova_senha != confirmar_senha:
-        mensagem = "As senhas não coincidem. Por favor, tente novamente."
-        return render_template('mensagem.html', mensagem=mensagem)
+        return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="As senhas não coincidem. Por favor, tente novamente.")
     
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
     if usuario:
         usuario.senha = hashlib.sha256(nova_senha.encode()).hexdigest()
-        usuario.codigo_recuperacao = None
         db_session.commit()
-        mensagem = "Senha redefinida com sucesso."
-        return render_template('mensagem.html', mensagem=mensagem)
+        return render_template('mensagem.html', mensagem="Senha redefinida com sucesso.")
     
-    mensagem = "Erro ao redefinir a senha."
-    return render_template('mensagem.html', mensagem=mensagem)
+    return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="Erro ao redefinir a senha.")
 
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():

@@ -4,6 +4,9 @@
 
 {% block content %}
 <h2>Redefinir Senha</h2>
+{% if mensagem %}
+    <div class="alert alert-danger">{{ mensagem }}</div>
+{% endif %}
 <form id="redefinirSenhaForm" action="/resetar_senha" method="post" onsubmit="return validarSenhas()">
     <input type="hidden" name="email" value="{{ email }}">
     <input type="hidden" name="codigo_recuperacao" value="{{ codigo_recuperacao }}">
@@ -21,10 +24,12 @@
         var regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
         if (!regex.test(senha)) {
+            alert("A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.");
             return false;
         }
 
         if (senha !== confirmarSenha) {
+            alert("As senhas não coincidem. Por favor, tente novamente.");
             return false;
         }
         return true;

@@ -4,33 +4,24 @@
 
 {% block content %}
 <h2>Recuperar Senha</h2>
-<form id="recuperarSenhaForm" action="/verificar_codigo" method="post">
+<form id="recuperarSenhaForm" action="/enviar_codigo" method="post">
     <label for="emailRecuperacao">E-mail:</label>
     <input type="email" id="emailRecuperacao" name="email" required><br>
-    <button type="button" class="btn-primary" onclick="enviarCodigo()">Enviar Código por E-mail</button><br><br>
+    <button type="submit" class="btn-primary">Enviar Código por E-mail</button><br><br>
+    {% if mensagem %}
+        <div class="alert alert-info">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+
+        {% if mensagem2 %}
+        <div class="alert alert-danger">
+            {{ mensagem2 }}
+        </div>
+        {% endif %}
+
     <label for="codigoRecuperacao">Código de Recuperação:</label>
     <input type="text" id="codigoRecuperacao" name="codigo_recuperacao" required disabled><br>
     <button type="submit" class="btn-primary" id="verificarCodigoBotao" disabled>Verificar Código</button>
 </form>
-<script>
-    function enviarCodigo() {
-        var email = document.getElementById('emailRecuperacao').value;
-        fetch('/enviar_codigo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                email: email
-            })
-        })
-        .then(response => response.text())
-        .then(data => {
-            alert(data);
-            document.getElementById('codigoRecuperacao').disabled = false;
-            document.getElementById('verificarCodigoBotao').disabled = false;
-        })
-        .catch(error => console.error('Erro:', error));
-    }
-</script>
 {% endblock %}
