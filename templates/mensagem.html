@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensagem</title>
-    <script>
-        function exibirMensagem(mensagem) {
-            alert(mensagem);
-            window.location.href = '/';
-        }
-    </script>
-</head>
+{% extends "base.html" %}
+
+{% block title %}Mensagem{% endblock %}
+
+{% block content %}
+<script>
+    function exibirMensagem(mensagem) {
+        alert(mensagem);
+        window.location.href = '/';
+    }
+</script>
 <body onload="exibirMensagem('{{ mensagem }}')">
-</body>
-</html>
+{% endblock %}

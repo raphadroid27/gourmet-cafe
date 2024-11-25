@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<body>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Login</title>
@@ -34,73 +34,75 @@
             position: relative;
         }
     </style>
-</head>
 <body>
-    <div class="container">
-        <div class="centered-form">
-            <h2>Cadastro</h2>
-            <form id="cadastroForm" action="/cadastrar" method="post">
-                <div class="form-group">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group position-relative">
-                    <label for="senha">Senha:</label>
-                    <input type="password" id="senha" name="senha" class="form-control" required>
-                    <span class="btn-show-pass" style="position: absolute; right: 10px; top: 75%; transform: translateY(-50%);">
-                        <i class="fas fa-eye"></i>
-                    </span>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Cadastrar</button>
-            </form>
-        </div>
-
-        <div class="centered-form">
-            <h2>Login</h2>
-            <form id="loginForm" action="/login" method="post">
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group position-relative">
-                    <label for="senha">Senha:</label>
-                    <input type="password" id="senha" name="senha" class="form-control" required>
-                    <span class="btn-show-pass" style="position: absolute; right: 10px; top: 75%; transform: translateY(-50%);">
-                        <i class="fas fa-eye"></i>
-                    </span>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-                <div class="text-center mt-3">
-                    <a href="/recuperar_senha">Esqueceu a senha?</a>
-                </div>
-            </form>
-        </div>
-
-        <div class="centered-form text-center">
-            <a href="/catalogo" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
-        </div>
+    <div class="centered-form">
+        <h2>Cadastro</h2>
+        <form id="cadastroForm" action="/cadastrar" method="post">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group position-relative">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" class="form-control" required>
+                <span class="btn-show-pass">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Cadastrar</button>
+        </form>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.btn-show-pass').on('click', function() {
-                var input = $(this).siblings('input');
-                if (input.attr('type') === 'password') {
-                    input.attr('type', 'text');
-                    $(this).find('i').removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    input.attr('type', 'password');
-                    $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
-                }
-            });
+    <div class="centered-form">
+        <h2>Login</h2>
+        {% if mensagem %}
+            <div class="alert alert-danger">{{ mensagem }}</div>
+        {% endif %}
+        <form id="loginForm" action="/" method="post">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group position-relative">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" class="form-control" required>
+                <span class="btn-show-pass">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+            <div class="text-center mt-3">
+                <a href="/recuperar_senha">Esqueceu a senha?</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="centered-form text-center">
+    <a href="{{ url_for('catalogo') }}" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.btn-show-pass').on('click', function() {
+            var input = $(this).siblings('input');
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+                $(this).find('i').removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                input.attr('type', 'password');
+                $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+            }
         });
-    </script>
+    });
+
+</script>
+
 </body>
 </html>

@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, Column, String, Float, Date, Integer
+from sqlalchemy import create_engine, Column, String, Float, Date, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 # Configurar o banco de dados
 Base = declarative_base()
+engine = create_engine('sqlite:///dbCoffee.db')
 
 class Usuario(Base):
     __tablename__ = 'usuarios'
@@ -13,6 +14,7 @@ class Usuario(Base):
     codigo_recuperacao = Column(String)
     data_nascimento = Column(Date)
     endereco_entrega = Column(String)
+    feedbacks = relationship('Feedback', back_populates='usuario')
 
 class Produto(Base):
     __tablename__ = 'produtos'
@@ -26,12 +28,12 @@ class Produto(Base):
 
 class Compra(Base):
     __tablename__ = 'compras'
-    id = Column(String, primary_key=True)
-    email_usuario = Column(String)
-    id_produto = Column(String)
-    data_compra = Column(Date)
-    quantidade = Column(Float)
-    preco_total = Column(Float)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email_usuario = Column(String, nullable=False)
+    data_compra = Column(Date, nullable=False)
+    quantidade = Column(Integer, nullable=False)
+    preco_total = Column(Float, nullable=False)
+    itens = relationship('ItensCompra', back_populates='compra')
 
 class Avaliacao(Base):
     __tablename__ = 'avaliacoes'
@@ -40,6 +42,23 @@ class Avaliacao(Base):
     id_produto = Column(String)
     nota = Column(Integer)
     comentario = Column(String)
+
+class ItensCompra(Base):
+    __tablename__ = 'itens_compra'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_compra = Column(Integer, ForeignKey('compras.id'), nullable=False)
+    id_produto = Column(String, ForeignKey('produtos.id'), nullable=False)
+    quantidade = Column(Integer, nullable=False)
+    preco_unitario = Column(Float, nullable=False)
+    compra = relationship('Compra', back_populates='itens')
+    produto = relationship('Produto')
+
+class Feedback(Base):
+    __tablename__ = 'feedback'
+    id = Column(Integer, primary_key=True)
+    usuario_id = Column(String, ForeignKey('usuarios.email'))
+    sugestao = Column(String, nullable=False)
+    usuario = relationship('Usuario', back_populates='feedbacks')
 
 # Conectar ao banco de dados SQLite
 engine = create_engine('sqlite:///dbCoffee.db')

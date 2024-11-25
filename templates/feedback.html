@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Enviar Feedback{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="centered-form">
+        <h1 class="mb-4">Enviar Feedback</h1>
+        <form action="{{ url_for('feedback') }}" method="post">
+            <div class="form-group">
+                <label for="sugestao">Sugestão:</label>
+                <textarea id="sugestao" name="sugestao" class="form-control" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

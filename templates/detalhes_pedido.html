@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Detalhes do Pedido{% endblock %}
+
+{% block content %}
+<h1>Detalhes do Pedido</h1>
+<p><strong>Código do Pedido:</strong> {{ pedido.id }}</p>
+<p><strong>Data da Compra:</strong> {{ pedido.data_compra }}</p>
+<p><strong>Endereço de Entrega:</strong> {{ pedido.endereco_entrega }}</p>
+<p><strong>Forma de Pagamento:</strong> {{ pedido.forma_pagamento }}</p>
+<p><strong>Valor Total:</strong> R$ {{ '%.2f'|format(pedido.preco_total) }}</p>
+
+<h2>Itens do Pedido</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Preço Unitário</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in itens %}
+        <tr>
+            <td>{{ item.produto.nome }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>R$ {{ '%.2f'|format(item.preco_unitario) }}</td>
+            <td>R$ {{ '%.2f'|format(item.preco_unitario * item.quantidade) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

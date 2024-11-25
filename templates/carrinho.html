@@ -1,80 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrinho de Compras</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <div class="centered-form">
-            <h1>Carrinho de Compras</h1>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Produto</th>
-                        <th>Quantidade</th>
-                        <th>Valor Unitário</th>
-                        <th>Total</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in produtos %}
-                    <tr>
-                        <td><img src="{{ item.imagem }}" alt="{{ item.nome }}" style="width: 50px; height: 50px;"></td>
-                        <td>{{ item.nome }}</td>
-                        <td>
-                            <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1" data-produto-id="{{ item.id }}" class="quantidade-input">
-                        </td>
-                        <td>R$ {{ item.preco }}</td>
-                        <td>R$ {{ '%.2f'|format(item.subtotal) }}</td>
-                        <td>
-                            <form action="/remover_item" method="post">
-                                <input type="hidden" name="produto_id" value="{{ item.id }}">
-                                <button type="submit" class="btn btn-primary">Remover</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
-            <a href="{{ url_for('finalizar_compra') }}" class="btn btn-primary">Finalizar Compra</a>
-            <a href="{{ url_for('limpar_carrinho') }}" class="btn btn-secondary">Limpar Carrinho</a>
-            <a href="{{ url_for('catalogo') }}" class="btn btn-secondary">Continuar Comprando</a>
-        </div>
-    </div>
+{% extends "base.html" %}
 
-    <script>
-        $(document).ready(function() {
-            var urlParams = new URLSearchParams(window.location.search);
-            var mensagem = urlParams.get('mensagem');
-            if (mensagem) {
-                alert(mensagem);
-            }
+{% block title %}Carrinho{% endblock %}
 
-            $('.quantidade-input').on('change', function() {
-                var produtoId = $(this).data('produto-id');
-                var quantidade = $(this).val();
-
-                $.ajax({
-                    url: '/atualizar_quantidade',
-                    method: 'POST',
-                    data: {
-                        produto_id: produtoId,
-                        quantidade: quantidade
-                    },
-                    success: function(response) {
-                        location.reload();
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+{% block content %}
+<div class="centered-form">
+    <h1>Carrinho de Compras</h1>
+    <table class="table">
+        <thead>
+            <tr class="table td">
+                <th></th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Valor Unitário</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in produtos %}
+            <tr>
+                <td><img src="{{ item.imagem }}" alt="{{ item.nome }}" class="produto-imagem"></td>
+                <td>{{ item.nome }}</td>
+                <td>
+                    <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1" data-produto-id="{{ item.id }}" class="quantidade-input">
+                </td>
+                <td>R$ {{ item.preco }}</td>
+                <td>R$ {{ '%.2f'|format(item.subtotal) }}</td>
+                <td>
+                    <form action="/remover_item" method="post">
+                        <input type="hidden" name="produto_id" value="{{ item.id }}">
+                        <button type="submit" class="btn btn-primary">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Total: R$ {{ '%.2f'|format(total) }}</h2>
+    <a href="{{ url_for('finalizar_compra') }}" class="btn btn-primary">Finalizar Compra</a>
+    <a href="{{ url_for('limpar_carrinho') }}" class="btn btn-secondary">Limpar Carrinho</a>
+    <a href="{{ url_for('catalogo') }}" class="btn btn-secondary">Continuar Comprando</a>
+</div>
+{% endblock %}

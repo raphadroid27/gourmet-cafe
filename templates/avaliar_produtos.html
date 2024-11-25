@@ -1,29 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliar Produtos</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="centered-form">
-            <h1 class="mb-4">Avaliar Produtos</h1>
-            <form action="{{ url_for('avaliar_produtos') }}" method="post">
-                {% for produto in produtos %}
-                <div class="produto-avaliacao mb-4">
-                    <h2>{{ produto.nome }}</h2>
-                    <label for="nota_{{ produto.id }}">Nota:</label>
-                    <input type="number" id="nota_{{ produto.id }}" name="nota_{{ produto.id }}" min="1" max="5" required>
-                    <label for="comentario_{{ produto.id }}">Comentário:</label>
-                    <textarea id="comentario_{{ produto.id }}" name="comentario_{{ produto.id }}" class="form-control"></textarea>
-                </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-primary">Enviar Avaliações</button>
-            </form>
-        </div>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Área do Cliente{% endblock %}
+
+{% block content %}
+<h1>Área do Cliente</h1>
+<h2>Informações do Usuário</h2>
+<p>Nome: {{ usuario.nome }}</p>
+<p>Email: {{ usuario.email }}</p>
+<p>Data de Nascimento: {{ usuario.data_nascimento }}</p>
+<p>Endereço de Entrega: {{ usuario.endereco_entrega }}</p>
+<a href="{{ url_for('editar_usuario') }}" class="btn btn-primary">Editar Informações</a>
+
+<h2>Pedidos</h2>
+<ul>
+    {% for pedido in pedidos %}
+    <li>Pedido ID: {{ pedido.id }}, Data: {{ pedido.data_compra }}, Total: R$ {{ pedido.preco_total }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Avaliações</h2>
+<ul>
+    {% for avaliacao in avaliacoes %}
+    <li>Produto ID: {{ avaliacao.id_produto }}, Nota: {{ avaliacao.nota }}, Comentário: {{ avaliacao.comentario }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
