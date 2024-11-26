@@ -129,10 +129,8 @@ def enviar_codigo():
         usuario.codigo_recuperacao = gerar_codigo_recuperacao()
         db_session.commit()
         enviar_email_confirmacao(email)
-        mensagem= "Código de recuperação enviado para o e-mail."
-        return render_template('recuperar_senha.html', mensagem=mensagem)
-    mensagem2 = "E-mail não encontrado."
-    return render_template('recuperar_senha.html', mensagem2=mensagem2)
+        return render_template('recuperar_senha.html', email=email, mensagem="Código de recuperação enviado para o e-mail.")
+    return render_template('recuperar_senha.html', mensagem2="E-mail não encontrado.")
 
 @app.route('/verificar_codigo', methods=['POST'])
 def verificar_codigo():
@@ -141,7 +139,7 @@ def verificar_codigo():
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
     if usuario:
         return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
-    return render_template('recuperar_senha.html', mensagem="Código de recuperação inválido.")
+    return render_template('recuperar_senha.html', mensagem2="Código de recuperação inválido.")
 
 @app.route('/resetar_senha', methods=['POST'])
 def resetar_senha():

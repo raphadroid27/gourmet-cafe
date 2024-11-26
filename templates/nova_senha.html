@@ -7,32 +7,21 @@
 {% if mensagem %}
     <div class="alert alert-danger">{{ mensagem }}</div>
 {% endif %}
-<form id="redefinirSenhaForm" action="/resetar_senha" method="post" onsubmit="return validarSenhas()">
+<form id="redefinirSenhaForm" action="/resetar_senha" method="post">
     <input type="hidden" name="email" value="{{ email }}">
     <input type="hidden" name="codigo_recuperacao" value="{{ codigo_recuperacao }}">
     <label for="novaSenha">Nova Senha:</label>
     <input type="password" id="novaSenha" name="nova_senha" required><br>
     <label for="confirmarSenha">Confirmar Nova Senha:</label>
     <input type="password" id="confirmarSenha" name="confirmar_senha" required><br>
+
+    {% if mensagem %}
+        <div class="alert alert-info">
+            {{ mensagem }}
+        </div>
+        {% endif %}
+
     <p><em>A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.</em></p>
     <button type="submit">Redefinir Senha</button>
 </form>
-<script>
-    function validarSenhas() {
-        var senha = document.getElementById("novaSenha").value;
-        var confirmarSenha = document.getElementById("confirmarSenha").value;
-        var regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-        if (!regex.test(senha)) {
-            alert("A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.");
-            return false;
-        }
-
-        if (senha !== confirmarSenha) {
-            alert("As senhas não coincidem. Por favor, tente novamente.");
-            return false;
-        }
-        return true;
-    }
-</script>
 {% endblock %}
