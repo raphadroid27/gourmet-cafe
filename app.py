@@ -1,5 +1,5 @@
 from uuid import uuid4
-from flask import Flask, request, render_template, redirect, url_for, jsonify, session
+from flask import Flask, request, render_template,flash,redirect, url_for, jsonify, session
 from email.mime.text import MIMEText
 from models import Usuario, Produto, Avaliacao, Compra, ItensCompra, Feedback, session as db_session
 from functools import wraps
@@ -192,7 +192,10 @@ def adicionar_ao_carrinho():
         })
 
     session.modified = True
+    
+    flash(f"Produto {produto.nome} adicionado ao carrinho.")
     return redirect(url_for('catalogo'))
+
 
 @app.route('/ver_carrinho')
 def ver_carrinho():
