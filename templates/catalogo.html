@@ -17,6 +17,16 @@
     
 </form>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="alert alert-info">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <div id="produtos">
     {% for produto in produtos %}
     <div class="produto">
@@ -33,9 +43,21 @@
     
         </form><br>
             <a href="{{ url_for('ver_produto', produto_id=produto.id) }}" class="btn btn-secondary">Ver Detalhes</a>
+        
         </div>
 
     </div>
     {% endfor %}
 </div>
+
+{% if mensagem %}
+<div class="alert alert-info">
+    {{ mensagem }}
+</div>
+ {% endif %}
+
+
+ 
+
+ 
 {% endblock %}
