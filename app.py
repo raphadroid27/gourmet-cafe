@@ -236,6 +236,11 @@ def finalizar_compra():
         cidade = request.form['cidade']
         estado = request.form['estado']
         cep = request.form['cep']
+        forma_pagamento = request.form['forma_pagamento']
+        numero_cartao = request.form.get('numero_cartao')
+        nome_cartao = request.form.get('nome_cartao')
+        validade_cartao = request.form.get('validade_cartao')
+        cvv_cartao = request.form.get('cvv_cartao')
         carrinho = session.get('carrinho', [])
         total = sum(item['preco'] * item['quantidade'] for item in carrinho)
         
@@ -252,7 +257,12 @@ def finalizar_compra():
             email_usuario=session['user_id'],
             data_compra=datetime.now().date(),
             quantidade=len(carrinho),
-            preco_total=total
+            preco_total=total,
+            forma_pagamento=forma_pagamento,
+            numero_cartao=numero_cartao,
+            nome_cartao=nome_cartao,
+            validade_cartao=validade_cartao,
+            cvv_cartao=cvv_cartao
         )
         db_session.add(nova_compra)
         db_session.commit()
