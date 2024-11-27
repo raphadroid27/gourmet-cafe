@@ -68,10 +68,21 @@ def cadastrar_usuario():
     db_session.commit()
     return render_template('index.html', mensagemCadastro=f"Usuário {nome} cadastrado com sucesso.")
 
-@app.route('/listar_usuarios')
+@app.route('/listar_usuarios', methods=['GET'])
 def listar_usuarios():
-    usuarios = db_session.query(Usuario).all()
+    search = request.args.get('search')
+    if search:
+        usuarios = db_session.query(Usuario).filter(
+            (Usuario.nome.ilike(f'%{search}%')) | 
+            (Usuario.email.ilike(f'%{search}%'))
+        ).all()
+    else:
+        usuarios = db_session.query(Usuario).all()
     return render_template('listar_usuarios.html', usuarios=usuarios)
+
+@app.route('/recuperar_senha')
+def recuperar_senha():
+    return render_template('recuperar_senha.html')
 
 def gerar_codigo_recuperacao():
     return ''.join(random.choices('0123456789', k=6))
@@ -85,10 +96,6 @@ def atualizar_codigos_recuperacao():
         for usuario in usuarios:
             usuario.codigo_recuperacao = gerar_codigo_recuperacao()
         db_session.commit()
-
-@app.route('/recuperar_senha')
-def recuperar_senha():
-    return render_template('recuperar_senha.html')
 
 @app.route('/enviar_codigo', methods=['POST'])
 def enviar_codigo():
@@ -128,65 +135,34 @@ def resetar_senha():
     if usuario:
         usuario.senha = hashlib.sha256(nova_senha.encode()).hexdigest()
         db_session.commit()
-        return render_template('mensagem.html', mensagem="Senha redefinida com sucesso.")
+        return render_template('nova_senha.html', mensagem="Senha redefinida com sucesso.")
     
     return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="Erro ao redefinir a senha.")
 
-@app.route('/gerenciar_sistema')
+@app.route('/editar_usuario', methods=['GET', 'POST'])
 @login_required
-def gerenciar_sistema():
-    feedbacks = db_session.query(Feedback).all()
-    return render_template('gerenciar_sistema.html', feedbacks=feedbacks)
+def editar_usuario():
+    usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
+    if request.method == 'POST':
+        usuario.nome = request.form['nome']
+        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%Y-%m-%d').date()
+        usuario.endereco_entrega = request.form['endereco_entrega']
+        db_session.commit()
+        return redirect(url_for('area_cliente'))
+    return render_template('editar_usuario.html', usuario=usuario)
 
 @app.route('/catalogo')
-#@login_required
 def catalogo():
     search = request.args.get('search', '')
     query = db_session.query(Produto).filter(Produto.nome.like(f'%{search}%'))
     produtos = query.order_by(Produto.nome).all()
     return render_template('catalogo.html', produtos=produtos)
 
-@app.route('/cadastrar_produto', methods=['GET', 'POST'])
-def cadastrar_produto():
-    if request.method == 'POST':
-        nome = request.form['nome']
-        descricao = request.form['descricao']
-        preco = request.form['preco']
-        imagem = request.form['imagem']
-        tipo = request.form['tipo']
-        ingredientes = request.form['ingredientes']
-        
-        novo_produto = Produto(
-            id=str(uuid4()), 
-            nome=nome, 
-            descricao=descricao, 
-            preco=float(preco), 
-            imagem=imagem, 
-            tipo=tipo, 
-            ingredientes=ingredientes
-        )
-        db_session.add(novo_produto)
-        db_session.commit()
-        return render_template('cadastrar_produto.html', mensagem="Produto cadastrado com sucesso!")
-    return render_template('cadastrar_produto.html')
-
-@app.route('/listar_produtos')
-def listar_produtos():
-    produtos = db_session.query(Produto).all()
-    return render_template('listar_produtos.html', produtos=produtos)
-
-@app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
-def editar_produto(produto_id):
+@app.route('/produto/<produto_id>', methods=['GET', 'POST'])
+def ver_produto(produto_id):
     produto = db_session.query(Produto).filter_by(id=produto_id).first()
-    if request.method == 'POST':
-        produto.nome = request.form['nome']
-        produto.descricao = request.form['descricao']
-        produto.preco = request.form['preco']
-        produto.tipo = request.form['tipo']
-        produto.ingredientes = request.form['ingredientes']
-        db_session.commit()
-        return redirect(url_for('listar_produtos'))
-    return render_template('editar_produto.html', produto=produto)
+    avaliacoes = db_session.query(Avaliacao).filter_by(id_produto=produto_id).all()
+    return render_template('produto.html', produto=produto, avaliacoes=avaliacoes)
 
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():
@@ -221,7 +197,6 @@ def adicionar_ao_carrinho():
     
     flash(f"Produto {produto.nome} adicionado ao carrinho.")
     return redirect(url_for('catalogo'))
-
 
 @app.route('/ver_carrinho')
 def ver_carrinho():
@@ -331,47 +306,6 @@ def verificar_cupom(cupom):
     }
     return cupons_validos.get(cupom.upper())
 
-@app.route('/produto/<produto_id>', methods=['GET', 'POST'])
-def ver_produto(produto_id):
-    produto = db_session.query(Produto).filter_by(id=produto_id).first()
-    avaliacoes = db_session.query(Avaliacao).filter_by(id_produto=produto_id).all()
-    return render_template('produto.html', produto=produto, avaliacoes=avaliacoes)
-
-@app.route('/editar_avaliacao/<avaliacao_id>', methods=['GET', 'POST'])
-def editar_avaliacao(avaliacao_id):
-    avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
-    if request.method == 'POST':
-        avaliacao.nota = request.form['nota']
-        avaliacao.comentario = request.form['comentario']
-        db_session.commit()
-        return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
-    return render_template('editar_avaliacao.html', avaliacao=avaliacao)
-
-@app.route('/denunciar_avaliacao/<avaliacao_id>', methods=['POST'])
-def denunciar_avaliacao(avaliacao_id):
-    # Lógica para denunciar avaliação
-    return "Avaliação denunciada."
-
-@app.route('/avaliar_produtos', methods=['GET', 'POST'])
-def avaliar_produtos():
-    if request.method == 'POST':
-        for produto_id in request.form:
-            if produto_id.startswith('nota_'):
-                id = produto_id.split('_')[1]
-                nota = request.form[produto_id]
-                comentario = request.form[f'comentario_{id}']
-                nova_avaliacao = Avaliacao(
-                    email_usuario=session['user_id'],
-                    id_produto=id,
-                    nota=nota,
-                    comentario=comentario
-                )
-                db_session.add(nova_avaliacao)
-                db_session.commit()
-        return redirect(url_for('catalogo'))
-    produtos = db_session.query(Produto).all()
-    return render_template('avaliar_produtos.html', produtos=produtos)
-
 @app.route('/avaliar_produto', methods=['POST'])
 def avaliar_produto():
     produto_id = request.form['produto_id']
@@ -386,6 +320,16 @@ def avaliar_produto():
     db_session.add(nova_avaliacao)
     db_session.commit()
     return redirect(url_for('ver_produto', produto_id=produto_id))
+
+@app.route('/editar_avaliacao/<avaliacao_id>', methods=['GET', 'POST'])
+def editar_avaliacao(avaliacao_id):
+    avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
+    if request.method == 'POST':
+        avaliacao.nota = request.form['nota']
+        avaliacao.comentario = request.form['comentario']
+        db_session.commit()
+        return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
+    return render_template('editar_avaliacao.html', avaliacao=avaliacao)
 
 @app.route('/devolucao', methods=['GET', 'POST'])
 def devolucao():
@@ -412,18 +356,6 @@ def area_cliente():
     avaliacoes = db_session.query(Avaliacao).filter_by(email_usuario=session['user_id']).all()
     return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes)
 
-@app.route('/editar_usuario', methods=['GET', 'POST'])
-@login_required
-def editar_usuario():
-    usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
-    if request.method == 'POST':
-        usuario.nome = request.form['nome']
-        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%Y-%m-%d').date()
-        usuario.endereco_entrega = request.form['endereco_entrega']
-        db_session.commit()
-        return redirect(url_for('area_cliente'))
-    return render_template('editar_usuario.html', usuario=usuario)
-
 @app.route('/detalhes_pedido/<int:pedido_id>')
 @login_required
 def detalhes_pedido(pedido_id):
@@ -439,6 +371,7 @@ def detalhes_pedido(pedido_id):
     return render_template('detalhes_pedido.html', pedido=pedido, itens=itens)
 
 @app.route('/feedback', methods=['GET', 'POST'])
+@login_required
 def feedback():
     if request.method == 'POST':
         sugestao = request.form['sugestao']
@@ -454,6 +387,57 @@ def feedback():
         else:
             return redirect(url_for('login'))
     return render_template('feedback.html')
+    
+    @app.route('/gerenciar_sistema')
+
+#verificar se é possivel gerenciar login e postar feedback sem logar
+
+def gerenciar_sistema():
+    @login_required
+    feedbacks = db_session.query(Feedback).all()
+    return render_template('gerenciar_sistema.html', feedbacks=feedbacks)
+
+@app.route('/cadastrar_produto', methods=['GET', 'POST'])
+def cadastrar_produto():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        imagem = request.form['imagem']
+        tipo = request.form['tipo']
+        ingredientes = request.form['ingredientes']
+        
+        novo_produto = Produto(
+            id=str(uuid4()), 
+            nome=nome, 
+            descricao=descricao, 
+            preco=float(preco), 
+            imagem=imagem, 
+            tipo=tipo, 
+            ingredientes=ingredientes
+        )
+        db_session.add(novo_produto)
+        db_session.commit()
+        return render_template('cadastrar_produto.html', mensagem="Produto cadastrado com sucesso!")
+    return render_template('cadastrar_produto.html')
+
+@app.route('/listar_produtos')
+def listar_produtos():
+    produtos = db_session.query(Produto).all()
+    return render_template('listar_produtos.html', produtos=produtos)
+
+@app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
+def editar_produto(produto_id):
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    if request.method == 'POST':
+        produto.nome = request.form['nome']
+        produto.descricao = request.form['descricao']
+        produto.preco = request.form['preco']
+        produto.tipo = request.form['tipo']
+        produto.ingredientes = request.form['ingredientes']
+        db_session.commit()
+        return redirect(url_for('listar_produtos'))
+    return render_template('editar_produto.html', produto=produto)
 
 @app.route('/excluir_produto/<uuid:produto_id>', methods=['POST'])
 def excluir_produto(produto_id):
@@ -463,9 +447,9 @@ def excluir_produto(produto_id):
         db_session.commit()
     return redirect(url_for('listar_produtos'))
 
-@app.route('/excluir_usuario/<int:usuario_id>', methods=['POST'])
-def excluir_usuario(usuario_id):
-    usuario = db_session.query(Usuario).get(usuario_id)
+@app.route('/excluir_usuario/<email>', methods=['POST'])
+def excluir_usuario(email):
+    usuario = db_session.query(Usuario).filter_by(email=email).first()
     if usuario:
         db_session.delete(usuario)
         db_session.commit()
