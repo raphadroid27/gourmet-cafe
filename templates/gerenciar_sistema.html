@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Sistema{% endblock %}
+
+{% block content %}
+<h1>Gerenciar Sistema</h1>
+
+<h2>Feedbacks</h2>
+<ul>
+    {% for feedback in feedbacks %}
+    <li>{{ feedback.sugestao }} - {{ feedback.usuario_id }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Links</h2>
+<ul>
+    <li><a href="{{ url_for('listar_produtos') }}">Listar Produtos</a></li>
+    <li><a href="{{ url_for('cadastrar_produto') }}">Cadastrar Produto</a></li>
+    <li><a href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
+</ul>
+{% endblock %}

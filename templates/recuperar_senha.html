@@ -3,24 +3,24 @@
 {% block title %}Recuperar Senha{% endblock %}
 
 {% block content %}
-<h2>Recuperar Senha</h2>
+<h1 class="mb-4">Recuperar Senha</h1>
 <form id="recuperarSenhaForm" action="/enviar_codigo" method="post">
     <label for="emailRecuperacao">E-mail:</label>
-    <input type="email" id="emailRecuperacao" name="email" required value="{{ email }}"><br>
-    <button type="submit" class="btn-primary">Enviar Código por E-mail</button><br><br>
+    <input type="email" id="emailRecuperacao" name="email" required value="{{ email }}" class="form-control"><br>
+    <button type="submit" class="btn btn-primary">Enviar Código por E-mail</button><br><br>
     {% if mensagem %}
         <div class="alert alert-info">
             {{ mensagem }}
         </div>
         <label for="codigoRecuperacao">Código de Recuperação:</label>
-        <input type="text" id="codigoRecuperacao" name="codigo_recuperacao" required><br>
-        <button type="submit" class="btn-primary" id="verificarCodigoBotao">Verificar Código</button>
+        <input type="text" id="codigoRecuperacao" name="codigo_recuperacao" required class="form-control"><br>
+        <button type="submit" class="btn btn-primary" id="verificarCodigoBotao">Verificar Código</button>
         
     {% endif %}
 
-    {% if mensagem2 %}
+    {% if mensagemErro %}
         <div class="alert alert-danger">
-            {{ mensagem2 }}
+            {{ mensagemErro }}
         </div>
     {% endif %}
 </form>

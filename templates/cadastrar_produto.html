@@ -2,60 +2,86 @@
 
 {% block title %}Cadastrar Produto{% endblock %}
 
-{% block content %}
-<div class="container mt-5">
-    <div class="centered-form">
-        <h1 class="mb-4">Cadastrar Produto</h1>
-        <form action="{{ url_for('cadastrar_produto') }}" method="post" onsubmit="return validarFormulario()">
-            <div class="form-group">
-                <label for="nome">Nome:</label>
-                <input type="text" id="nome" name="nome" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="descricao">Descrição:</label>
-                <input type="text" id="descricao" name="descricao" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="preco">Preço:</label>
-                <input type="text" id="preco" name="preco" class="form-control" required pattern="^\d+(\.\d{1,2})?$" oninput="validarPreco()">
-            </div>
-            <div class="form-group">
-                <label for="imagem">URL da Imagem:</label>
-                <input type="text" id="imagem" name="imagem" class="form-control" required oninput="atualizarImagem()">
-                <img id="preview" src="" style="max-width: 200px; max-height: 200px;">
-            </div>
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select id="tipo" name="tipo" class="form-control" required>
-                    <option value="cafe">Café</option>
-                    <option value="cupcake">Cupcake</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
-        </form>
-    </div>
-</div>
+{% block head %}
+    <link rel="preload" href="" as="image" id="preloadImage">
 {% endblock %}
 
-<script>
-    function atualizarImagem() {
-        var url = document.getElementById('imagem').value;
-        document.getElementById('preview').src = url;
-    }
+{% block content %}
+    
+    <h1 class="mb-4">Cadastrar Produto</h1>
 
-    function validarPreco() {
-        var preco = document.getElementById('preco');
-        var regex = /^\d+(\.\d{1,2})?$/;
-        if (!regex.test(preco.value)) {
-            preco.setCustomValidity("Preço inválido. Use o formato 0.00");
-        } else {
-            preco.setCustomValidity("");
+    {% if mensagem %}
+    <div class="alert alert-success" role="alert">
+        {{ mensagem }}
+    </div>
+    {% endif %}
+
+    <form action="{{ url_for('cadastrar_produto') }}" method="post" onsubmit="return validarFormulario()">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <input type="text" id="descricao" name="descricao" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="preco">Preço:</label>
+            <input type="text" id="preco" name="preco" class="form-control" required pattern="^\d+(\.\d{1,2})?$" oninput="validarPreco()">
+        </div>
+        <div class="form-group">
+            <label for="imagem">URL da Imagem:</label>
+            <input type="text" id="imagem" name="imagem" class="form-control" required oninput="atualizarImagem()">
+            <img id="preview" src="" style="max-width: 200px; max-height: 200px;">
+        </div>
+        <div class="form-group">
+            <label for="tipo">Tipo:</label>
+            <select id="tipo" name="tipo" class="form-group" required>
+                <option value="cafe">Café</option>
+                <option value="cupcake">Cupcake</option>
+                <option value="brownie">Brownie</option>
+                <option value="cookie">Cookie</option>
+                <option value="salgado">Salgado</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="ingredientes">Ingredientes:</label>
+            <input type="text" id="ingredientes" name="ingredientes" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
+        <button type="button" class="btn btn-secondary" onclick="limparCampos()">Limpar</button>
+    </form>
+
+    <script>
+        function atualizarImagem() {
+            var url = document.getElementById('imagem').value;
+            document.getElementById('preview').src = url;
+            document.getElementById('preloadImage').href = url;
         }
-    }
 
-    function validarFormulario() {
-        var preco = document.getElementById('preco');
-        validarPreco();
-        return preco.checkValidity();
-    }
-</script>
+        function validarPreco() {
+            var preco = document.getElementById('preco');
+            var regex = /^\d+(\.\d{1,2})?$/;
+            if (!regex.test(preco.value)) {
+                preco.setCustomValidity("Preço inválido. Use o formato 0.00");
+            } else {
+                preco.setCustomValidity("");
+            }
+        }
+
+        function validarFormulario() {
+            var preco = document.getElementById('preco');
+            validarPreco();
+            return preco.checkValidity();
+        }
+
+        function limparCampos() {
+            document.getElementById('nome').value = '';
+            document.getElementById('descricao').value = '';
+            document.getElementById('preco').value = '';
+            document.getElementById('imagem').value = '';
+            document.getElementById('preview').src = '';
+            document.getElementById('ingredientes').value = '';
+        }
+    </script>
+{% endblock %}

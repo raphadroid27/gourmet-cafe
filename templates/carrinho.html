@@ -19,7 +19,7 @@
         <tbody>
             {% for item in produtos %}
             <tr>
-                <td><img src="{{ item.imagem }}" alt="{{ item.nome }}" class="produto-imagem"></td>
+                <td><img src="{{ item.imagem }}" alt="{{ item.nome }}" class="imagem-carrinho"></td>
                 <td>{{ item.nome }}</td>
                 <td>
                     <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1" data-produto-id="{{ item.id }}" class="quantidade-input">

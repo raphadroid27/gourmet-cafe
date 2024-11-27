@@ -9,30 +9,10 @@ import random
 import threading
 import time
 from datetime import datetime
+from uuid import UUID
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            return redirect(url_for('index'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-def cadastrar_usuario(nome, email, senha):
-    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        return "E-mail inválido!"
-    if len(senha) < 8 or not re.search(r"[A-Za-z]", senha) or not re.search(r"[0-9]", senha) or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", senha):
-        return "Senha não atende aos requisitos de segurança!"
-
-    senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-    codigo_recuperacao = gerar_codigo_recuperacao()
-    novo_usuario = Usuario(nome=nome, email=email, senha=senha_hash, codigo_recuperacao=codigo_recuperacao)
-    db_session.add(novo_usuario)
-    db_session.commit()
-    return f"Usuário {nome} cadastrado com sucesso."
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -46,53 +26,16 @@ def index():
             session['user_name'] = usuario.nome
             return redirect(url_for('catalogo'))
         else:
-            mensagem = "Credenciais inválidas, tente novamente."
-            return render_template('index.html', mensagem=mensagem)
+            return render_template('index.html', mensagemLoginErro="Credenciais inválidas, tente novamente.")
     return render_template('index.html')
 
-@app.route('/catalogo')
-#@login_required
-def catalogo():
-    search = request.args.get('search', '')
-    
-    query = db_session.query(Produto).filter(Produto.nome.like(f'%{search}%'))
-    
-    produtos = query.order_by(Produto.nome).all()
-    
-    return render_template('catalogo.html', produtos=produtos)
-
-@app.route('/cadastrar_produto', methods=['GET', 'POST'])
-def cadastrar_produto():
-    if request.method == 'POST':
-        nome = request.form['nome']
-        descricao = request.form['descricao']
-        preco = request.form['preco']
-        imagem = request.form['imagem']
-        tipo = request.form['tipo']
-        ingredientes = request.form['ingredientes']
-        
-        novo_produto = Produto(
-            id=str(uuid4()), 
-            nome=nome, 
-            descricao=descricao, 
-            preco=float(preco), 
-            imagem=imagem, 
-            tipo=tipo, 
-            ingredientes=ingredientes
-        )
-        db_session.add(novo_produto)
-        db_session.commit()
-        mensagem = "Produto cadastrado com sucesso!"
-        return render_template('mensagem.html', mensagem=mensagem)
-    return render_template('cadastrar_produto.html')
-
-@app.route('/cadastrar', methods=['POST'])
-def cadastrar():
-    nome = request.form['nome']
-    email = request.form['email']
-    senha = request.form['senha']
-    mensagem = cadastrar_usuario(nome, email, senha)
-    return render_template('mensagem.html', mensagem=mensagem)
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/logout')
 def logout():
@@ -100,12 +43,38 @@ def logout():
     session.pop('user_name', None)
     return redirect(url_for('index'))
 
+@app.route('/cadastrar', methods=['POST'])
+    
+def cadastrar_usuario():
+    nome = request.form['nome']
+    email = request.form['email']
+    senha = request.form['senha']
+
+    # Verificar se o email já está cadastrado
+    usuario_existente = db_session.query(Usuario).filter_by(email=email).first()
+    if usuario_existente:
+        return render_template('index.html', mensagemCadastroErro="E-mail já cadastrado!")
+
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return render_template('index.html', mensagemCadastroErro="E-mail inválido.")
+    
+    if len(senha) < 8 or not re.search(r"[A-Za-z]", senha) or not re.search(r"[0-9]", senha):
+        return render_template ('index.html', mensagemCadastroErro="A senha deve conter pelo menos 8 caracteres, incluindo uma letra e um número.")
+
+    senha_hash = hashlib.sha256(senha.encode()).hexdigest()
+    codigo_recuperacao = gerar_codigo_recuperacao()
+    novo_usuario = Usuario(nome=nome, email=email, senha=senha_hash, codigo_recuperacao=codigo_recuperacao)
+    db_session.add(novo_usuario)
+    db_session.commit()
+    return render_template('index.html', mensagemCadastro=f"Usuário {nome} cadastrado com sucesso.")
+
+@app.route('/listar_usuarios')
+def listar_usuarios():
+    usuarios = db_session.query(Usuario).all()
+    return render_template('listar_usuarios.html', usuarios=usuarios)
+
 def gerar_codigo_recuperacao():
     return ''.join(random.choices('0123456789', k=6))
-
-def enviar_email_confirmacao(email):
-    mensagem = f"E-mail de confirmação enviado para {email}" 
-    return render_template('mensagem.html', mensagem=mensagem)
 
 def atualizar_codigos_recuperacao():
     while True:
@@ -128,9 +97,8 @@ def enviar_codigo():
     if usuario:
         usuario.codigo_recuperacao = gerar_codigo_recuperacao()
         db_session.commit()
-        enviar_email_confirmacao(email)
         return render_template('recuperar_senha.html', email=email, mensagem="Código de recuperação enviado para o e-mail.")
-    return render_template('recuperar_senha.html', mensagem2="E-mail não encontrado.")
+    return render_template('recuperar_senha.html', mensagemErro="E-mail não encontrado.")
 
 @app.route('/verificar_codigo', methods=['POST'])
 def verificar_codigo():
@@ -139,8 +107,8 @@ def verificar_codigo():
     usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
     if usuario:
         return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
-    return render_template('recuperar_senha.html', mensagem2="Código de recuperação inválido.")
-
+    return render_template('recuperar_senha.html', mensagemErro="Código de recuperação inválido.")
+    
 @app.route('/resetar_senha', methods=['POST'])
 def resetar_senha():
     email = request.form['email']
@@ -164,15 +132,73 @@ def resetar_senha():
     
     return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="Erro ao redefinir a senha.")
 
+@app.route('/gerenciar_sistema')
+@login_required
+def gerenciar_sistema():
+    feedbacks = db_session.query(Feedback).all()
+    return render_template('gerenciar_sistema.html', feedbacks=feedbacks)
+
+@app.route('/catalogo')
+#@login_required
+def catalogo():
+    search = request.args.get('search', '')
+    query = db_session.query(Produto).filter(Produto.nome.like(f'%{search}%'))
+    produtos = query.order_by(Produto.nome).all()
+    return render_template('catalogo.html', produtos=produtos)
+
+@app.route('/cadastrar_produto', methods=['GET', 'POST'])
+def cadastrar_produto():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        imagem = request.form['imagem']
+        tipo = request.form['tipo']
+        ingredientes = request.form['ingredientes']
+        
+        novo_produto = Produto(
+            id=str(uuid4()), 
+            nome=nome, 
+            descricao=descricao, 
+            preco=float(preco), 
+            imagem=imagem, 
+            tipo=tipo, 
+            ingredientes=ingredientes
+        )
+        db_session.add(novo_produto)
+        db_session.commit()
+        return render_template('cadastrar_produto.html', mensagem="Produto cadastrado com sucesso!")
+    return render_template('cadastrar_produto.html')
+
+@app.route('/listar_produtos')
+def listar_produtos():
+    produtos = db_session.query(Produto).all()
+    return render_template('listar_produtos.html', produtos=produtos)
+
+@app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
+def editar_produto(produto_id):
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    if request.method == 'POST':
+        produto.nome = request.form['nome']
+        produto.descricao = request.form['descricao']
+        produto.preco = request.form['preco']
+        produto.tipo = request.form['tipo']
+        produto.ingredientes = request.form['ingredientes']
+        db_session.commit()
+        return redirect(url_for('listar_produtos'))
+    return render_template('editar_produto.html', produto=produto)
+
 @app.route('/adicionar_ao_carrinho', methods=['POST'])
 def adicionar_ao_carrinho():
     produto_id = request.form.get('produto_id')
     if not produto_id:
-        return jsonify({'error': 'Produto ID não fornecido'}), 400
+        flash("Produto não encontrado.")
+        return redirect(url_for('catalogo'))
 
     produto = db_session.query(Produto).filter_by(id=produto_id).first()
     if not produto:
-        return jsonify({'error': 'Produto não encontrado'}), 404
+        flash(f"Produto {produto_id} não encontrado.")
+        return redirect(url_for('catalogo'))
 
     if 'carrinho' not in session:
         session['carrinho'] = []
@@ -428,6 +454,22 @@ def feedback():
         else:
             return redirect(url_for('login'))
     return render_template('feedback.html')
+
+@app.route('/excluir_produto/<uuid:produto_id>', methods=['POST'])
+def excluir_produto(produto_id):
+    produto = db_session.query(Produto).get(produto_id)
+    if produto:
+        db_session.delete(produto)
+        db_session.commit()
+    return redirect(url_for('listar_produtos'))
+
+@app.route('/excluir_usuario/<int:usuario_id>', methods=['POST'])
+def excluir_usuario(usuario_id):
+    usuario = db_session.query(Usuario).get(usuario_id)
+    if usuario:
+        db_session.delete(usuario)
+        db_session.commit()
+    return redirect(url_for('listar_usuarios'))
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
