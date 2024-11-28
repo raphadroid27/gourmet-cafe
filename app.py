@@ -436,30 +436,17 @@ def editar_produto(produto_id):
         return redirect(url_for('gerenciar_sistema'))
     return render_template('editar_produto.html', produto=produto)
 
-@app.route('/excluir_produto/<uuid:produto_id>', methods=['POST'])
+@app.route('/excluir_produto/<uuid:produto_id>', methods=['DELETE'])
 def excluir_produto(produto_id):
     try:
-        print(f"Tentando excluir o produto com ID: {produto_id}")
-        
-        # Listar todos os produtos para depuração
-        produtos = db_session.query(Produto).all()
-        for p in produtos:
-            print(f"Produto no banco de dados: ID={p.id}, Nome={p.nome}")
-        
-        # Converter produto_id para string para comparação
         produto = db_session.query(Produto).filter_by(id=str(produto_id)).first()
         if produto:
-            print(f"Produto encontrado: {produto.nome}")
             db_session.delete(produto)
             db_session.commit()
-            flash('Produto excluído com sucesso.', 'success')
-        else:
-            print("Produto não encontrado.")
-            flash('Produto não encontrado.', 'danger')
+            return jsonify({'success': True})
+        return jsonify({'success': False}), 404
     except Exception as e:
-        print(f"Erro ao excluir o produto: {e}")
-        flash('Erro ao excluir o produto.', 'danger')
-    return redirect(url_for('gerenciar_sistema'))
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/listar_usuarios', methods=['GET'])
 def listar_usuarios():
@@ -467,17 +454,17 @@ def listar_usuarios():
     usuarios = db_session.query(Usuario).filter(Usuario.nome.contains(search) | Usuario.email.contains(search)).all()
     return render_template('gerenciar_sistema.html', usuarios=usuarios)
 
-@app.route('/excluir_usuario', methods=['POST'])
+@app.route('/excluir_usuario', methods=['DELETE'])
 def excluir_usuario():
-    email = request.form.get('email')
+    data = request.get_json()
+    email = data.get('email')
     usuario = db_session.query(Usuario).filter_by(email=email).first()
     if usuario:
         db_session.delete(usuario)
         db_session.commit()
-        flash('Usuário excluído com sucesso.', 'success')
-    else:
-        flash('Usuário não encontrado.', 'danger')
-    return redirect(url_for('gerenciar_sistema'))
+        flash('Usuário excluído com sucesso!', 'success')
+        return jsonify({'success': True})
+    return jsonify({'success': False}), 404
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()
