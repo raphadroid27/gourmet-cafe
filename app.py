@@ -68,17 +68,6 @@ def cadastrar_usuario():
     db_session.commit()
     return render_template('index.html', mensagemCadastro=f"Usuário {nome} cadastrado com sucesso.")
 
-@app.route('/listar_usuarios', methods=['GET'])
-def listar_usuarios():
-    search = request.args.get('search')
-    if search:
-        usuarios = db_session.query(Usuario).filter(
-            (Usuario.nome.ilike(f'%{search}%')) | 
-            (Usuario.email.ilike(f'%{search}%'))
-        ).all()
-    else:
-        usuarios = db_session.query(Usuario).all()
-    return render_template('listar_usuarios.html', usuarios=usuarios)
 
 @app.route('/recuperar_senha')
 def recuperar_senha():
@@ -371,31 +360,21 @@ def detalhes_pedido(pedido_id):
     return render_template('detalhes_pedido.html', pedido=pedido, itens=itens)
 
 @app.route('/feedback', methods=['GET', 'POST'])
-@login_required
 def feedback():
     if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
         sugestao = request.form['sugestao']
-        user_id = session.get('user_id')
-        if user_id:
-            usuario = db_session.query(Usuario).filter_by(email=user_id).first()
-            if usuario:
-                # Salvar feedback no banco de dados
-                novo_feedback = Feedback(usuario_id=user_id, sugestao=sugestao)
-                db_session.add(novo_feedback)
-                db_session.commit()
-                return redirect(url_for('index'))
-        else:
-            return redirect(url_for('login'))
-    return render_template('feedback.html')
+        
+        # Salvar feedback no banco de dados
+        novo_feedback = Feedback(nome=nome, email=email, sugestao=sugestao)
+        db_session.add(novo_feedback)
+        db_session.commit()
+        
+        flash('Feedback enviado com sucesso!', 'success')
+        return redirect(url_for('feedback'))
     
-    @app.route('/gerenciar_sistema')
-
-#verificar se é possivel gerenciar login e postar feedback sem logar
-
-def gerenciar_sistema():
-    @login_required
-    feedbacks = db_session.query(Feedback).all()
-    return render_template('gerenciar_sistema.html', feedbacks=feedbacks)
+    return render_template('feedback.html')
 
 @app.route('/cadastrar_produto', methods=['GET', 'POST'])
 def cadastrar_produto():
@@ -421,10 +400,25 @@ def cadastrar_produto():
         return render_template('cadastrar_produto.html', mensagem="Produto cadastrado com sucesso!")
     return render_template('cadastrar_produto.html')
 
-@app.route('/listar_produtos')
-def listar_produtos():
+
+@app.route('/gerenciar_sistema', methods=['GET', 'POST'])
+def gerenciar_sistema():
+    if request.method == 'POST':
+        feedback_id = request.form.get('feedback_id')
+        if feedback_id:
+            feedback = db_session.query(Feedback).filter_by(id=feedback_id).first()
+            if feedback:
+                feedback.respondido = not feedback.respondido
+                db_session.commit()
+            else:
+                flash('Feedback não encontrado.', 'danger')
+        return redirect(url_for('gerenciar_sistema'))
+
+    search = request.args.get('search', '')
+    feedbacks = db_session.query(Feedback).filter(Feedback.nome.contains(search) | Feedback.email.contains(search)).all()
     produtos = db_session.query(Produto).all()
-    return render_template('listar_produtos.html', produtos=produtos)
+    usuarios = db_session.query(Usuario).all()
+    return render_template('gerenciar_sistema.html', feedbacks=feedbacks, produtos=produtos, usuarios=usuarios)
 
 @app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
 def editar_produto(produto_id):
@@ -434,26 +428,38 @@ def editar_produto(produto_id):
         produto.descricao = request.form['descricao']
         produto.preco = request.form['preco']
         produto.tipo = request.form['tipo']
-        produto.ingredientes = request.form['ingredientes']
         db_session.commit()
-        return redirect(url_for('listar_produtos'))
+        return redirect(url_for('gerenciar_sistema'))
     return render_template('editar_produto.html', produto=produto)
 
 @app.route('/excluir_produto/<uuid:produto_id>', methods=['POST'])
 def excluir_produto(produto_id):
-    produto = db_session.query(Produto).get(produto_id)
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
     if produto:
         db_session.delete(produto)
         db_session.commit()
-    return redirect(url_for('listar_produtos'))
+        flash('Produto excluído com sucesso.', 'success')
+    else:
+        flash('Produto não encontrado.', 'danger')
+    return redirect(url_for('gerenciar_sistema'))
 
-@app.route('/excluir_usuario/<email>', methods=['POST'])
-def excluir_usuario(email):
+@app.route('/listar_usuarios', methods=['GET'])
+def listar_usuarios():
+    search = request.args.get('search', '')
+    usuarios = db_session.query(Usuario).filter(Usuario.nome.contains(search) | Usuario.email.contains(search)).all()
+    return render_template('gerenciar_sistema.html', usuarios=usuarios)
+
+@app.route('/excluir_usuario', methods=['POST'])
+def excluir_usuario():
+    email = request.form.get('email')
     usuario = db_session.query(Usuario).filter_by(email=email).first()
     if usuario:
         db_session.delete(usuario)
         db_session.commit()
-    return redirect(url_for('listar_usuarios'))
+        flash('Usuário excluído com sucesso.', 'success')
+    else:
+        flash('Usuário não encontrado.', 'danger')
+    return redirect(url_for('gerenciar_sistema'))
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()

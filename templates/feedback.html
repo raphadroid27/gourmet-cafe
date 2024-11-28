@@ -3,16 +3,32 @@
 {% block title %}Enviar Feedback{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="centered-form">
+
         <h1 class="mb-4">Enviar Feedback</h1>
         <form action="{{ url_for('feedback') }}" method="post">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
             <div class="form-group">
                 <label for="sugestao">Sugestão:</label>
                 <textarea id="sugestao" name="sugestao" class="form-control" required></textarea>
             </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-success">
+                    {{ messages[0][1] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+
             <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
-    </div>
-</div>
+    
+
 {% endblock %}

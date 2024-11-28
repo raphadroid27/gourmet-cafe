@@ -5,17 +5,110 @@
 {% block content %}
 <h1>Gerenciar Sistema</h1>
 
+<!-- Seção de Feedbacks -->
 <h2>Feedbacks</h2>
-<ul>
-    {% for feedback in feedbacks %}
-    <li>{{ feedback.sugestao }} - {{ feedback.usuario_id }}</li>
-    {% endfor %}
-</ul>
+<form method="GET" action="{{ url_for('gerenciar_sistema') }}">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="search" placeholder="Buscar feedbacks" value="{{ request.args.get('search', '') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </div>
+</form>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Comentário</th>
+                <th>Respondido</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback.nome }}</td>
+                <td>{{ feedback.email }}</td>
+                <td>{{ feedback.sugestao }}</td>
+                <td class="text-center">{{ 'Sim' if feedback.respondido else 'Não' }}</td>
+                <td class="text-center">
+                    <form action="{{ url_for('gerenciar_sistema') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                        <button type="submit" class="btn {{ 'btn-danger' if feedback.respondido else 'btn-success' }} w-100">
+                            {{ 'Marcar como não respondido' if feedback.respondido else 'Marcar como respondido' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<h2>Links</h2>
-<ul>
-    <li><a href="{{ url_for('listar_produtos') }}">Listar Produtos</a></li>
-    <li><a href="{{ url_for('cadastrar_produto') }}">Cadastrar Produto</a></li>
-    <li><a href="{{ url_for('listar_usuarios') }}">Listar Usuários</a></li>
-</ul>
+<!-- Seção de Produtos -->
+<h2 class="mt-4 mb-4">Listar Produtos</h2>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Preço</th>
+                <th>Tipo</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos %}
+            <tr>
+                <td>{{ produto.nome }}</td>
+                <td>{{ produto.descricao }}</td>
+                <td>{{ produto.preco }}</td>
+                <td>{{ produto.tipo }}</td>
+                <td>
+                    <a href="{{ url_for('editar_produto', produto_id=produto.id) }}" class="btn btn-primary">Editar</a>
+                    <form action="{{ url_for('excluir_produto', produto_id=produto.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Seção de Usuários -->
+<h2 class="mt-4 mb-4">Listar Usuários</h2>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Data de Nascimento</th>
+                <th>Endereço de Entrega</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.nome }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.data_nascimento }}</td>
+                <td>{{ usuario.endereco_entrega }}</td>
+                <td>
+                    <form action="{{ url_for('excluir_usuario') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="email" value="{{ usuario.email }}">
+                        <button type="submit" class="btn btn-danger">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% endblock %}
