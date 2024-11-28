@@ -10,34 +10,34 @@
 </head>
 <body>
     <div class="container">
-        
-        {% if session.get('user_name') %}
-        <div class="user-info text-left">
-            <span>Bem-vindo, {{ session['user_name'] }}!</span>
-        </div>
-        {% endif %}
-
-        <div class="navigation-links text-right">
-            <a href="{{ url_for('catalogo') }}" class="btn btn-link">
-                <i class="fas fa-home"></i> Home
-            </a>
-            {% if session.get('user_id') == 'admin@admin.com' %}
-            <a href="{{ url_for('gerenciar_sistema') }}" class="btn btn-link">
-                <i class="fas fa-cogs"></i> Gerenciar Sistema
-            </a>
-            {% endif %}
-            {% if session.get('user_name') %}
-            <a href="{{ url_for('area_cliente') }}" class="btn btn-link">
-                <i class="fas fa-user"></i> Área do Cliente
-            </a>
-            <a href="{{ url_for('logout') }}" class="btn btn-link">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </a>
-            {% else %}
-            <a href="{{ url_for('index') }}" class="btn btn-link">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </a>
-            {% endif %}
+        <div class="row">
+            <div class="col text-left">
+                {% if session.get('user_name') %}
+                <span class="bem_vindo">Bem-vindo, {{ session.get('user_name') }}!</span>
+                {% endif %}
+            </div>
+            <div class="col text-right">
+                <a href="{{ url_for('catalogo') }}" class="btn btn-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                {% if session.get('user_id') == 'admin@admin.com' %}
+                <a href="{{ url_for('gerenciar_sistema') }}" class="btn btn-link">
+                    <i class="fas fa-cogs"></i> Gerenciar Sistema
+                </a>
+                {% endif %}
+                {% if session.get('user_name') %}
+                <a href="{{ url_for('area_cliente') }}" class="btn btn-link">
+                    <i class="fas fa-user"></i> Área do Cliente
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-link">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+                {% else %}
+                <a href="{{ url_for('index') }}" class="btn btn-link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                {% endif %}
+            </div>
         </div>
     
         {% block content %}{% endblock %}

@@ -3,13 +3,23 @@
 {% block title %}Gerenciar Sistema{% endblock %}
 
 {% block content %}
-<h1>Gerenciar Sistema</h1>
+<h1 class="mb-4 mt-4">Gerenciar Sistema</h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="alert alert-info">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 <!-- Seção de Feedbacks -->
-<h2>Feedbacks</h2>
+<h2 class="mb-4 mt-4">Feedbacks</h2>
 <form method="GET" action="{{ url_for('gerenciar_sistema') }}">
     <div class="input-group mb-3">
-        <input type="text" class="form-control" name="search" placeholder="Buscar feedbacks" value="{{ request.args.get('search', '') }}">
+        <input type="text" class="form-control" name="search_feedback" placeholder="Buscar feedbacks" value="{{ request.args.get('search_feedback', '') }}">
         <div class="input-group-append">
             <button class="btn btn-primary" type="submit">Buscar</button>
         </div>
@@ -48,7 +58,15 @@
 </div>
 
 <!-- Seção de Produtos -->
-<h2 class="mt-4 mb-4">Listar Produtos</h2>
+<h2 class="mb-4 mt-4">Listar Produtos</h2>
+<form method="GET" action="{{ url_for('gerenciar_sistema') }}">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="search_produto" placeholder="Buscar produtos" value="{{ request.args.get('search_produto', '') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </div>
+</form>
 <div class="table-responsive">
     <table class="table">
         <thead>
@@ -67,10 +85,11 @@
                 <td>{{ produto.descricao }}</td>
                 <td>{{ produto.preco }}</td>
                 <td>{{ produto.tipo }}</td>
-                <td>
-                    <a href="{{ url_for('editar_produto', produto_id=produto.id) }}" class="btn btn-primary">Editar</a>
+                <td class="text-center">
+
+                    <a href="{{ url_for('editar_produto', produto_id=produto.id) }}" class="btn btn-primary w-100%">Editar</a>
                     <form action="{{ url_for('excluir_produto', produto_id=produto.id) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Excluir</button>
+                        <button type="submit" class="btn btn-danger w-100%">Excluir</button>
                     </form>
                 </td>
             </tr>
@@ -79,8 +98,20 @@
     </table>
 </div>
 
+<div class="mt-3">
+    <a href="{{ url_for('cadastrar_produto') }}" class="btn btn-success">Cadastrar Novo Produto</a>
+</div>
+
 <!-- Seção de Usuários -->
 <h2 class="mt-4 mb-4">Listar Usuários</h2>
+<form method="GET" action="{{ url_for('gerenciar_sistema') }}">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="search_usuario" placeholder="Buscar usuários" value="{{ request.args.get('search_usuario', '') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </div>
+</form>
 <div class="table-responsive">
     <table class="table">
         <thead>
@@ -99,10 +130,10 @@
                 <td>{{ usuario.email }}</td>
                 <td>{{ usuario.data_nascimento }}</td>
                 <td>{{ usuario.endereco_entrega }}</td>
-                <td>
+                <td class="text-center">
                     <form action="{{ url_for('excluir_usuario') }}" method="post" style="display:inline;">
                         <input type="hidden" name="email" value="{{ usuario.email }}">
-                        <button type="submit" class="btn btn-danger">Excluir</button>
+                        <button type="submit" class="btn btn-danger w-100">Excluir</button>
                     </form>
                 </td>
             </tr>

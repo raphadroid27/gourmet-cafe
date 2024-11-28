@@ -32,6 +32,11 @@ class Compra(Base):
     data_compra = Column(Date, nullable=False)
     quantidade = Column(Integer, nullable=False)
     preco_total = Column(Float, nullable=False)
+    forma_pagamento = Column(String, nullable=False)
+    numero_cartao = Column(String, nullable=True)
+    nome_cartao = Column(String, nullable=True)
+    validade_cartao = Column(String, nullable=True)
+    cvv_cartao = Column(String, nullable=True)
     itens = relationship('ItensCompra', back_populates='compra')
 
 class Avaliacao(Base):

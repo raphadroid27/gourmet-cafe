@@ -5,6 +5,12 @@ body {
     padding: 0;
 }
 
+    .bem_vindo {
+        margin-right: 15px;
+        margin-left: 15px;
+        font-weight: bold;
+    }
+
 h1 {
     color: #333;
     margin-bottom: 20px;
@@ -118,6 +124,7 @@ label {
     margin-bottom: 20px;
     border: 1px solid transparent;
     border-radius: 4px;
+    text-align: center;
 }
 
 .alert-danger {

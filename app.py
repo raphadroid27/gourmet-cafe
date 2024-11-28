@@ -414,10 +414,14 @@ def gerenciar_sistema():
                 flash('Feedback não encontrado.', 'danger')
         return redirect(url_for('gerenciar_sistema'))
 
-    search = request.args.get('search', '')
-    feedbacks = db_session.query(Feedback).filter(Feedback.nome.contains(search) | Feedback.email.contains(search)).all()
-    produtos = db_session.query(Produto).all()
-    usuarios = db_session.query(Usuario).all()
+    search_feedback = request.args.get('search_feedback', '')
+    search_produto = request.args.get('search_produto', '')
+    search_usuario = request.args.get('search_usuario', '')
+
+    feedbacks = db_session.query(Feedback).filter(Feedback.nome.contains(search_feedback) | Feedback.email.contains(search_feedback)).all()
+    produtos = db_session.query(Produto).filter(Produto.nome.contains(search_produto) | Produto.descricao.contains(search_produto)).all()
+    usuarios = db_session.query(Usuario).filter(Usuario.nome.contains(search_usuario) | Usuario.email.contains(search_usuario)).all()
+
     return render_template('gerenciar_sistema.html', feedbacks=feedbacks, produtos=produtos, usuarios=usuarios)
 
 @app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
@@ -434,13 +438,27 @@ def editar_produto(produto_id):
 
 @app.route('/excluir_produto/<uuid:produto_id>', methods=['POST'])
 def excluir_produto(produto_id):
-    produto = db_session.query(Produto).filter_by(id=produto_id).first()
-    if produto:
-        db_session.delete(produto)
-        db_session.commit()
-        flash('Produto excluído com sucesso.', 'success')
-    else:
-        flash('Produto não encontrado.', 'danger')
+    try:
+        print(f"Tentando excluir o produto com ID: {produto_id}")
+        
+        # Listar todos os produtos para depuração
+        produtos = db_session.query(Produto).all()
+        for p in produtos:
+            print(f"Produto no banco de dados: ID={p.id}, Nome={p.nome}")
+        
+        # Converter produto_id para string para comparação
+        produto = db_session.query(Produto).filter_by(id=str(produto_id)).first()
+        if produto:
+            print(f"Produto encontrado: {produto.nome}")
+            db_session.delete(produto)
+            db_session.commit()
+            flash('Produto excluído com sucesso.', 'success')
+        else:
+            print("Produto não encontrado.")
+            flash('Produto não encontrado.', 'danger')
+    except Exception as e:
+        print(f"Erro ao excluir o produto: {e}")
+        flash('Erro ao excluir o produto.', 'danger')
     return redirect(url_for('gerenciar_sistema'))
 
 @app.route('/listar_usuarios', methods=['GET'])
