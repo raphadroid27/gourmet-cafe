@@ -1,8 +1,12 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
     margin: 0;
     padding: 0;
+    background-image: url('https://wallpaperaccess.com/full/373982.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
 }
 
 .bem_vindo {
@@ -99,19 +103,6 @@ label {
     text-align: center;
 }
 
-.container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    
-}
-
-.form-group {
-    margin-bottom: 15px;
-    position: relative;
-}
-
 .alert {
     padding: 10px;
     margin-bottom: 20px;
@@ -194,13 +185,30 @@ label {
     margin-top: 10px;
 }
 
+/*Div*/
+
 .centered-form {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 50px auto;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: rgb(250,236,227);
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius:20px;
+    
+}
+
+.form-group {
+    margin-bottom: 15px;
+    position: relative;
+
 }
 
 .login {
