@@ -9,6 +9,7 @@ body {
     background-attachment: fixed;
 }
 
+
 .bem_vindo {
         
         font-weight: bold;
@@ -187,6 +188,16 @@ label {
 
 /*Div*/
 
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: rgb(250,236,227,0.75);
+    backdrop-filter: blur(10px);
+}
+
+
 .centered-form {
     max-width: 1000px;
     margin: 50px auto;
@@ -194,16 +205,10 @@ label {
     border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: rgb(250,236,227);
+    background-color: rgb(250,236,227,0.75);
 }
 
-.container {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    border-radius:20px;
-    
-}
+
 
 .form-group {
     margin-bottom: 15px;
@@ -246,6 +251,11 @@ table {
 
 thead{
     background-color: #d1d1d1;
+    text-align: center;
+}
+
+tbody{
+    background-color: rgb(250,236,227,0.75);
     text-align: center;
 }
 
