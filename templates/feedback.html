@@ -19,13 +19,11 @@
                 <textarea id="sugestao" name="sugestao" class="form-control" required></textarea>
             </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert alert-success">
-                    {{ messages[0][1] }}
-                </div>
+            {% if mensagem %}
+            <div class="alert alert-success" role="alert">
+                {{ mensagem }}
+            </div>
             {% endif %}
-            {% endwith %}
 
             <button type="submit" class="btn btn-primary">Enviar</button>
         </form>

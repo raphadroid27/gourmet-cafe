@@ -34,7 +34,6 @@
                 <th>Nome</th>
                 <th>Email</th>
                 <th>Comentário</th>
-                <th>Respondido</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -44,12 +43,11 @@
                 <td>{{ feedback.nome }}</td>
                 <td>{{ feedback.email }}</td>
                 <td>{{ feedback.sugestao }}</td>
-                <td class="text-center">{{ 'Sim' if feedback.respondido else 'Não' }}</td>
                 <td class="text-center">
                     <form action="{{ url_for('gerenciar_sistema') }}" method="post" style="display:inline;">
                         <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
-                        <button type="submit" class="btn {{ 'btn-danger' if feedback.respondido else 'btn-success' }} w-100">
-                            {{ 'Marcar como não respondido' if feedback.respondido else 'Marcar como respondido' }}
+                        <button type="submit" class="btn {{ 'btn-success' if feedback.respondido else 'btn-danger' }} w-100">
+                            {{ 'Respondido' if feedback.respondido else 'Não respondido' }}
                         </button>
                     </form>
                 </td>

@@ -394,10 +394,9 @@ def feedback():
         db_session.add(novo_feedback)
         db_session.commit()
         
-        flash('Feedback enviado com sucesso!', 'success')
         return redirect(url_for('feedback'))
     
-    return render_template('feedback.html')
+    return render_template('feedback.html',mensagem="Feedback enviado com sucesso!")
 
 @app.route('/cadastrar_produto', methods=['GET', 'POST'])
 def cadastrar_produto():
