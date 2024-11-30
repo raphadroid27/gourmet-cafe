@@ -343,6 +343,17 @@ def editar_avaliacao(avaliacao_id):
         return redirect(url_for('ver_produto', produto_id=avaliacao.id_produto))
     return render_template('editar_avaliacao.html', avaliacao=avaliacao)
 
+@app.route('/excluir_avaliacao/<int:avaliacao_id>', methods=['POST'])
+def excluir_avaliacao(avaliacao_id):
+    avaliacao = db_session.query(Avaliacao).filter_by(id=avaliacao_id).first()
+    if avaliacao:
+        db_session.delete(avaliacao)
+        db_session.commit()
+        flash('Avaliação excluída com sucesso!', 'success')
+    else:
+        flash('Avaliação não encontrada.', 'danger')
+    return redirect(url_for('area_cliente'))
+
 @app.route('/devolucao', methods=['GET', 'POST'])
 def devolucao():
     if request.method == 'POST':

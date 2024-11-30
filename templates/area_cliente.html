@@ -38,11 +38,31 @@
 </table>
 
 <h2>Avaliações</h2>
-<ul>
-    {% for avaliacao in avaliacoes %}
-    <li>Produto ID: {{ avaliacao.id_produto }}, Nota: {{ avaliacao.nota }}, Comentário: {{ avaliacao.comentario }}</li>
-    {% endfor %}
-</ul>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Nota</th>
+            <th>Comentário</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for avaliacao in avaliacoes %}
+        <tr>
+            <td>{{ avaliacao.produto.nome }}</td>
+            <td>{{ avaliacao.nota }}</td>
+            <td>{{ avaliacao.comentario }}</td>
+            <td>
+                <a href="{{ url_for('editar_avaliacao', avaliacao_id=avaliacao.id) }}" class="btn btn-primary">Editar</a>
+                <form action="{{ url_for('excluir_avaliacao', avaliacao_id=avaliacao.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 </div>
 
 {% endblock %}

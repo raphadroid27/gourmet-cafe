@@ -43,9 +43,10 @@ class Avaliacao(Base):
     __tablename__ = 'avaliacoes'
     id = Column(Integer, primary_key=True, autoincrement=True)
     email_usuario = Column(String)
-    id_produto = Column(String)
+    id_produto = Column(String, ForeignKey('produtos.id'))
     nota = Column(Integer)
     comentario = Column(String)
+    produto = relationship('Produto')
 
 class ItensCompra(Base):
     __tablename__ = 'itens_compra'
