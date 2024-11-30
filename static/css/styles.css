@@ -326,6 +326,11 @@ td {
 
 .star-rating label:hover,
 .star-rating label:hover ~ label,
-.star-rating input[type="radio"]:checked ~ label {
+.star-rating input[type="radio"]:checked ~ label
+ {
+    color: #f2b600;
+}
+
+.fa-star {
     color: #f2b600;
 }

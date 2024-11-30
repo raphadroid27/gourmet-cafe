@@ -3,6 +3,7 @@
 {% block title %}Detalhes do Pedido{% endblock %}
 
 {% block content %}
+<div class="centered-form">
 <h2>Detalhes do Pedido</h2>
 <p><strong>Código do Pedido:</strong> {{ pedido.id }}</p>
 <p><strong>Data da Compra:</strong> {{ pedido.data_compra }}</p>
@@ -35,4 +36,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}

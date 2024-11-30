@@ -241,7 +241,7 @@ def finalizar_compra():
             codigo_pedido = int(ultimo_pedido.id) + 1
         else:
             codigo_pedido = 1
-        
+
         # Salvar a compra no banco de dados
         nova_compra = Compra(
             id=codigo_pedido,
@@ -273,8 +273,8 @@ def finalizar_compra():
         # Limpar o carrinho
         session.pop('carrinho', None)
         
-        # Redirecionar para o catálogo com uma mensagem de sucesso
-        return redirect(url_for('catalogo', mensagem=f"Compra finalizada com sucesso! Código do pedido: {codigo_pedido}"))
+        # Redirecionar para a página de detalhes do pedido
+        return redirect(url_for('detalhes_pedido', pedido_id=codigo_pedido))
     
     carrinho = session.get('carrinho', [])
     total = sum(item['preco'] * item['quantidade'] for item in carrinho)

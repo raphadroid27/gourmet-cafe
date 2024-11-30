@@ -88,7 +88,7 @@
             <input type="text" id="cvv_cartao" name="cvv_cartao" class="form-control">
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Finalizar Compra</button>
+    <button type="submit" class="btn btn-primary" onclick="exibirAlerta()">Finalizar Compra</button>
 </form>
 
 <script>
@@ -102,6 +102,10 @@ document.querySelectorAll('input[name="forma_pagamento"]').forEach(function(elem
         }
     });
 });
+
+function exibirAlerta() {
+    alert('Compra finalizada com sucesso!');
+}
 </script>
 </div>
 {% endblock %}
