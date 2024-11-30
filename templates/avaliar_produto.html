@@ -3,8 +3,7 @@
 {% block title %}Avaliar Produto{% endblock %}
 
 {% block content %}
-<h2>Avaliar Produto</h2>
-<p><strong>Produto:</strong> {{ produto.nome }}</p>
+<h2>Avaliar Produto: {{ produto.nome }}</h2>
 <form action="{{ url_for('avaliar_produto', produto_id=produto.id) }}" method="post">
     <input type="hidden" name="pedido_id" value="{{ request.args.get('pedido_id') }}">
     <div class="form-group">

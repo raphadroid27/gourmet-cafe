@@ -299,18 +299,38 @@ def verificar_cupom(cupom):
 @login_required
 def avaliar_produto(produto_id):
     produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    if not produto:
+        flash('Produto não encontrado.', 'danger')
+        return redirect(url_for('catalogo'))
+
     if request.method == 'POST':
-        nota = request.form['nota']
-        comentario = request.form['comentario']
+        nota = request.form.get('nota')
+        comentario = request.form.get('comentario')
+        pedido_id = request.form.get('pedido_id')
+
+        try:
+            nota = int(nota)
+        except (ValueError, TypeError):
+            nota = None
+
+        if nota is None:
+            flash('Nota inválida. Por favor, insira um número entre 1 e 5.', 'danger')
+            return redirect(url_for('avaliar_produto', produto_id=produto_id))
+
+        # Salvar a avaliação no banco de dados
         nova_avaliacao = Avaliacao(
-            email_usuario=session['user_id'],
             id_produto=produto_id,
+            email_usuario=session['user_id'],
             nota=nota,
-            comentario=comentario
+            comentario=comentario,
+            #data_avaliacao=datetime.now()
         )
         db_session.add(nova_avaliacao)
         db_session.commit()
-        return redirect(url_for('detalhes_pedido', pedido_id=request.form['pedido_id']))
+
+        flash('Avaliação enviada com sucesso!', 'success')
+        return redirect(url_for('area_cliente'))
+
     return render_template('avaliar_produto.html', produto=produto)
 
 @app.route('/editar_avaliacao/<avaliacao_id>', methods=['GET', 'POST'])
