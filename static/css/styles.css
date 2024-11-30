@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-image: url('https://wallpaperaccess.com/full/373982.jpg');
+    background-image: url('https://img.freepik.com/fotos-premium/ha-aboboras-e-um-tumulo-na-grama-com-uma-cruz-generativa-ai_900814-25447.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -218,6 +218,8 @@ label {
     border: 1px solid #ccc;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: rgb(250,236,227,0.75);
+    
 }
 
 .text-center {
