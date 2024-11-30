@@ -3,7 +3,8 @@
 {% block title %}Gerenciar Sistema{% endblock %}
 
 {% block content %}
-<h1 class="mb-4 mt-4">Gerenciar Sistema</h1>
+<div class="centered-form">
+<h1>Gerenciar Sistema</h1>
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -16,7 +17,8 @@
 {% endwith %}
 
 <!-- Seção de Feedbacks -->
-<h2 class="mb-4 mt-4">Feedbacks</h2>
+
+ <h2>Feedbacks</h2>
 <form method="GET" action="{{ url_for('gerenciar_sistema') }}">
     <div class="input-group mb-3">
         <input type="text" class="form-control" name="search_feedback" placeholder="Buscar feedbacks" value="{{ request.args.get('search_feedback', '') }}">
@@ -58,7 +60,7 @@
 </div>
 
 <!-- Seção de Produtos -->
-<h2 class="mb-4 mt-4">Listar Produtos</h2>
+<h2">Listar Produtos</h2>
 
 <form method="GET" action="{{ url_for('gerenciar_sistema') }}">
     <div class="input-group mb-3">
@@ -99,7 +101,7 @@
 <a href="{{ url_for('cadastrar_produto') }}" class="btn btn-primary mb-4">Cadastrar Novo Produto</a>
 
 <!-- Seção de Usuários -->
-<h2 class="mt-4 mb-4">Listar Usuários</h2>
+<h2">Listar Usuários</h2>
 <form method="GET" action="{{ url_for('gerenciar_sistema') }}">
     <div class="input-group mb-3">
         <input type="text" class="form-control" name="search_usuario" placeholder="Buscar usuários" value="{{ request.args.get('search_usuario', '') }}">
@@ -133,6 +135,7 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
 </div>
 
 <script>

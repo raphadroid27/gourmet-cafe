@@ -3,7 +3,7 @@
 {% block title %}Área do Cliente{% endblock %}
 
 {% block content %}
-<h1>Área do Cliente</h1>
+<div class="centered-form">
 <h2>Informações do Usuário</h2>
 <p>Nome: {{ usuario.nome }}</p>
 <p>Email: {{ usuario.email }}</p>
@@ -31,6 +31,7 @@
             <td>{{ pedido.quantidade }}</td>
             <td>
                 <a href="{{ url_for('detalhes_pedido', pedido_id=pedido.id) }}" class="btn btn-secondary">Ver Detalhes</a>
+                <a href="{{ url_for('devolucao', pedido_id=pedido.id) }}" class="btn btn-danger">Solicitar Devolução</a>
             </td>
         </tr>
         {% endfor %}
@@ -43,4 +44,5 @@
     <li>Produto ID: {{ avaliacao.id_produto }}, Nota: {{ avaliacao.nota }}, Comentário: {{ avaliacao.comentario }}</li>
     {% endfor %}
 </ul>
+</div>
 {% endblock %}

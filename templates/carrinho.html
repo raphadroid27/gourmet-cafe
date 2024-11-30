@@ -4,16 +4,17 @@
 
 {% block content %}
 
-    <h1 class="mb-4">Carrinho de Compras</h1>
-    <table class="table">
+    <div class="centered-form">
+    <h1>Carrinho de Compras</h1>
+    <table>
         <thead>
-            <tr class="table td">
-                <th></th>
+            <tr>
+                <th>Imagem</th>
                 <th>Produto</th>
                 <th>Quantidade</th>
                 <th>Valor Unitário</th>
                 <th>Total</th>
-                <th></th>
+                <th>Ação</th>
             </tr>
         </thead>
         <tbody>
@@ -43,5 +44,5 @@
     <a href="{{ url_for('limpar_carrinho') }}" class="btn btn-secondary">Limpar Carrinho</a>
     <a href="{{ url_for('catalogo') }}" class="btn btn-secondary">Continuar Comprando</a>
     </div>
-
+</div>
 {% endblock %}
