@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Avaliar Produto{% endblock %}
+
+{% block content %}
+<h2>Avaliar Produto</h2>
+<p><strong>Produto:</strong> {{ produto.nome }}</p>
+<form action="{{ url_for('avaliar_produto', produto_id=produto.id) }}" method="post">
+    <input type="hidden" name="pedido_id" value="{{ request.args.get('pedido_id') }}">
+    <div class="form-group">
+        <label for="nota">Nota:</label>
+        <input type="number" id="nota" name="nota" min="1" max="5" class="form-control" required>
+    </div>
+    <div class="form-group">
+        <label for="comentario">Comentário:</label>
+        <textarea id="comentario" name="comentario" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar Avaliação</button>
+</form>
+{% endblock %}

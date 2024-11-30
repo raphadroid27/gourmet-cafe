@@ -3,8 +3,8 @@
 {% block title %}Enviar Feedback{% endblock %}
 
 {% block content %}
-
-        <h1 class="mb-4">Enviar Feedback</h1>
+<div class="centered-form">
+        <h2>Enviar Feedback</h2>
         <form action="{{ url_for('feedback') }}" method="post">
             <div class="form-group">
                 <label for="nome">Nome:</label>
@@ -29,6 +29,6 @@
 
             <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
-    
+    </div>  
 
 {% endblock %}

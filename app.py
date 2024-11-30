@@ -295,20 +295,23 @@ def verificar_cupom(cupom):
     }
     return cupons_validos.get(cupom.upper())
 
-@app.route('/avaliar_produto', methods=['POST'])
-def avaliar_produto():
-    produto_id = request.form['produto_id']
-    nota = request.form['nota']
-    comentario = request.form['comentario']
-    nova_avaliacao = Avaliacao(
-        email_usuario=session['user_id'],
-        id_produto=produto_id,
-        nota=nota,
-        comentario=comentario
-    )
-    db_session.add(nova_avaliacao)
-    db_session.commit()
-    return redirect(url_for('ver_produto', produto_id=produto_id))
+@app.route('/avaliar_produto/<produto_id>', methods=['GET', 'POST'])
+@login_required
+def avaliar_produto(produto_id):
+    produto = db_session.query(Produto).filter_by(id=produto_id).first()
+    if request.method == 'POST':
+        nota = request.form['nota']
+        comentario = request.form['comentario']
+        nova_avaliacao = Avaliacao(
+            email_usuario=session['user_id'],
+            id_produto=produto_id,
+            nota=nota,
+            comentario=comentario
+        )
+        db_session.add(nova_avaliacao)
+        db_session.commit()
+        return redirect(url_for('detalhes_pedido', pedido_id=request.form['pedido_id']))
+    return render_template('avaliar_produto.html', produto=produto)
 
 @app.route('/editar_avaliacao/<avaliacao_id>', methods=['GET', 'POST'])
 def editar_avaliacao(avaliacao_id):

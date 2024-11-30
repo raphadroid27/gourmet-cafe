@@ -3,7 +3,8 @@
 {% block title %}Editar Informações do Usuário{% endblock %}
 
 {% block content %}
-<h1>Editar Informações do Usuário</h1>
+<div class="centered-form">
+<h2>Editar Informações do Usuário</h2>
 <form action="{{ url_for('editar_usuario') }}" method="post">
     <div class="form-group">
         <label for="nome">Nome:</label>
@@ -19,4 +20,5 @@
     </div>
     <button type="submit" class="btn btn-primary">Salvar</button>
 </form>
+</div>
 {% endblock %}

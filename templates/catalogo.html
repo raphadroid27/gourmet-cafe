@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="centered-form">
-<h1 class="mb-4">Catálogo de Produtos</h1>
+<h1>Catálogo de Produtos</h1>
 <div class="form-group">
     <a href="{{ url_for('ver_carrinho') }}" class="btn-ver-carrinho">
         <i class="fas fa-shopping-cart"></i> Ver Carrinho
@@ -57,12 +57,8 @@
 {% if mensagem %}
 <div class="alert alert-info">
     {{ mensagem }}
-</div>
-</div>
+
  {% endif %}
-
-
- 
-
+</div>
  
 {% endblock %}

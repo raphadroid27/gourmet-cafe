@@ -1,18 +1,20 @@
 {% extends "base.html" %}
 
 {% block title %}{{ produto.nome }}{% endblock %}
-
 {% block content %}
-<h1>{{ produto.nome }}</h1>
-<p>{{ produto.descricao }}</p>
-<p>Preço: R$ {{ produto.preco }}</p>
-<img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+<div class="centered-form">
+<h2>{{ produto.nome }}</h2>
+<p class="paragrafo">{{ produto.descricao }}</p>
+<p><strong>Preço:</strong> R$ {{ produto.preco }}</p>
+<img class="imagem-produto" src="{{ produto.imagem }}" alt="{{ produto.nome }}">
 
-<h2>Avaliações</h2>
+<label><strong>Avaliações:</strong></label>
 {% for avaliacao in avaliacoes %}
 <div>
     <p>Nota: {{ avaliacao.nota }}</p>
     <p>Comentário: {{ avaliacao.comentario }}</p>
 </div>
 {% endfor %}
+</div>
+
 {% endblock %}

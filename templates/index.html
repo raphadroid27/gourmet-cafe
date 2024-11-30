@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
    
 <body>
-    <div class="centered-form">
+    <div class="login">
         <h2>Cadastro</h2>
 
         <form id="cadastroForm" action="/cadastrar" method="post">
@@ -21,7 +21,7 @@
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" class="form-control" required>
             </div>
-            <div class="form-group position-relative">
+            <div class="form-group password-container">
                 <label for="senha">Senha:</label>
                 <input type="password" id="senha" name="senha" class="form-control" required>
                 <span class="btn-show-pass">
@@ -45,7 +45,7 @@
         </form>
     </div>
 
-    <div class="centered-form">
+    <div class="login">
         <h2>Login</h2>
         
         <form id="loginForm" action="/" method="post">
@@ -53,7 +53,7 @@
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" class="form-control" required>
             </div>
-            <div class="form-group position-relative">
+            <div class=" form-group password-container">
                 <label for="senha">Senha:</label>
                 <input type="password" id="senha" name="senha" class="form-control" required>
                 <span class="btn-show-pass">
@@ -72,7 +72,7 @@
         </form>
     </div>
 
-    <div class="centered-form text-center">
+    <div class="login">
     <a href="{{ url_for('catalogo') }}" class="btn btn-secondary btn-block">Visualizar Catálogo</a>
     </div>
 
