@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-image: url('https://img.freepik.com/fotos-premium/ha-aboboras-e-um-tumulo-na-grama-com-uma-cruz-generativa-ai_900814-25447.jpg');
+    background-image: url('/static/fundo.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -40,16 +40,16 @@ label {
 #produtos {
     display: flex;
     flex-wrap: wrap;
-    justify-content: left;
+    justify-content: center;
 }
 
 .produto {
     border: 1px solid #ccc;
     padding: 10px;
     margin: 10px;
-    width: 350px;
+    width: 300px;
     box-sizing: border-box;
-    background-color: rgb(250,236,227,0.25);;
+    background-color: rgba(240, 216, 207);
     border-radius: 10px;
 }
 
@@ -168,8 +168,7 @@ label {
 
 /* Estilos de Container */
 .container {
-    max-width: 800px;
-    margin: 20px auto;
+    margin: 10px auto;
     padding: 20px;
     border-radius: 20px;
     background-color: rgb(250,236,227,0.75);
@@ -177,7 +176,7 @@ label {
 }
 
 .centered-form {
-    max-width: 1000px;
+    max-width: 1005px;
     margin: 50px auto;
     padding: 20px;
     border: 1px solid #ccc;
@@ -246,7 +245,7 @@ th, td {
     position: absolute;
     right: 10px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(10%);
     cursor: pointer;
 }
 

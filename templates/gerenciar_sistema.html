@@ -23,6 +23,7 @@
                 <th>Nome</th>
                 <th>Email</th>
                 <th>Comentário</th>
+                <th>Data</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -32,11 +33,52 @@
                 <td>{{ feedback.nome }}</td>
                 <td>{{ feedback.email }}</td>
                 <td>{{ feedback.sugestao }}</td>
+                <td>{{ feedback.data.strftime('%d/%m/%Y') if feedback.data else 'N/A' }}</td>
                 <td class="text-center">
                     <form action="{{ url_for('gerenciar_sistema') }}" method="post" style="display:inline;">
                         <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
                         <button type="submit" class="btn {{ 'btn-success' if feedback.respondido else 'btn-danger' }} w-100">
                             {{ 'Respondido' if feedback.respondido else 'Não respondido' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Seção de Devoluções -->
+<h2>Devoluções</h2>
+<form method="GET" action="{{ url_for('gerenciar_sistema') }}">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="search_devolucao" placeholder="Buscar devoluções" value="{{ request.args.get('search_devolucao', '') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </div>
+</form>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Número do Pedido</th>
+                <th>Motivo</th>
+                <th>Contato</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for devolucao in devolucoes %}
+            <tr>
+                <td>{{ devolucao.numero_pedido }}</td>
+                <td>{{ devolucao.motivo }}</td>
+                <td>{{ devolucao.contato }}</td>
+                <td class="text-center">
+                    <form action="{{ url_for('gerenciar_sistema') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="devolucao_id" value="{{ devolucao.id }}">
+                        <button type="submit" class="btn {{ 'btn-success' if devolucao.respondido else 'btn-danger' }} w-100">
+                            {{ 'Respondido' if devolucao.respondido else 'Não respondido' }}
                         </button>
                     </form>
                 </td>
@@ -113,7 +155,7 @@
             <tr>
                 <td>{{ usuario.nome }}</td>
                 <td>{{ usuario.email }}</td>
-                <td>{{ usuario.data_nascimento }}</td>
+                <td>{{ usuario.data_nascimento.strftime('%d/%m/%Y') if usuario.data_nascimento else 'N/A' }}</td>
                 <td>{{ usuario.endereco_entrega }}</td>
                 <td class="text-center">
                     <button class="btn btn-danger w-100" onclick="excluirUsuario('{{ usuario.email }}')">Excluir</button>

@@ -30,13 +30,13 @@
             </div>
 
             {% if mensagemCadastroErro %}
-            <div class="alert alert-danger">
+            <div class="alert alert-danger w-100">
                 {{ mensagemCadastroErro }}
             </div>
         {% endif %}
 
             {% if mensagemCadastro %}
-             <div class="alert alert-success">
+             <div class="alert alert-success w-100">
                 {{ mensagemCadastro }}
             </div>
          {% endif %}
@@ -62,7 +62,7 @@
             </div>
 
             {% if mensagemLoginErro %}
-            <div class="alert alert-danger">{{ mensagemLoginErro }}</div>
+            <div class="alert alert-danger w-100">{{ mensagemLoginErro }}</div>
         {% endif %}
 
             <button type="submit" class="btn btn-primary btn-block">Login</button>

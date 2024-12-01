@@ -1,7 +1,7 @@
 from uuid import uuid4
 from flask import Flask, request, render_template,flash,redirect, url_for, jsonify, session
 from email.mime.text import MIMEText
-from models import Usuario, Produto, Avaliacao, Compra, ItensCompra, Feedback, Endereco, session as db_session
+from models import Usuario, Produto, Avaliacao, Compra, ItensCompra, Feedback, Endereco, Devolucao, session as db_session
 from functools import wraps
 import hashlib
 import re
@@ -135,7 +135,7 @@ def editar_usuario():
     enderecos = db_session.query(Endereco).filter_by(email_usuario=session['user_id']).all()
     if request.method == 'POST':
         usuario.nome = request.form['nome']
-        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%d/%m/%Y').date()
+        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%Y-%m-%d').date()
         db_session.commit()
         return redirect(url_for('area_cliente'))
     return render_template('editar_usuario.html', usuario=usuario, enderecos=enderecos)
@@ -462,17 +462,29 @@ def gerenciar_sistema():
                 db_session.commit()
             else:
                 flash('Feedback não encontrado.', 'danger')
+
+        devolucao_id = request.form.get('devolucao_id')
+        if devolucao_id:
+            devolucao = db_session.query(Devolucao).filter_by(id=devolucao_id).first()
+            if devolucao:
+                devolucao.respondido = not devolucao.respondido
+                db_session.commit()
+            else:
+                flash('Devolução não encontrada.', 'danger')
+
         return redirect(url_for('gerenciar_sistema'))
 
     search_feedback = request.args.get('search_feedback', '')
     search_produto = request.args.get('search_produto', '')
     search_usuario = request.args.get('search_usuario', '')
+    search_devolucao = request.args.get('search_devolucao', '')
 
     feedbacks = db_session.query(Feedback).filter(Feedback.nome.contains(search_feedback) | Feedback.email.contains(search_feedback)).all()
     produtos = db_session.query(Produto).filter(Produto.nome.contains(search_produto) | Produto.descricao.contains(search_produto)).all()
     usuarios = db_session.query(Usuario).filter(Usuario.nome.contains(search_usuario) | Usuario.email.contains(search_usuario)).all()
+    devolucoes = db_session.query(Devolucao).filter(Devolucao.numero_pedido.contains(search_devolucao)).all()
 
-    return render_template('gerenciar_sistema.html', feedbacks=feedbacks, produtos=produtos, usuarios=usuarios)
+    return render_template('gerenciar_sistema.html', feedbacks=feedbacks, produtos=produtos, usuarios=usuarios, devolucoes=devolucoes)
 
 @app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
 def editar_produto(produto_id):

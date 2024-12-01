@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine, Column, String, Float, Date, Integer, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from datetime import datetime
+from sqlalchemy import DateTime
 
 # Configurar o banco de dados
 Base = declarative_base()
@@ -85,12 +87,23 @@ class ItensCompra(Base):
     produto = relationship('Produto')
 
 class Feedback(Base):
-    __tablename__ = 'feedback'
-    id = Column(Integer, primary_key=True)
+    __tablename__ = 'feedbacks'
+    id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String, nullable=False)
     email = Column(String, nullable=False)
     sugestao = Column(String, nullable=False)
     respondido = Column(Boolean, default=False)
+    resposta = Column(String, nullable=True)
+    data = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+class Devolucao(Base):
+    __tablename__ = 'devolucoes'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    numero_pedido = Column(String, nullable=False)
+    motivo = Column(String, nullable=False)
+    contato = Column(String, nullable=False)
+    respondido = Column(Boolean, default=False)
+    resposta = Column(String, nullable=True)
 
 # Conectar ao banco de dados SQLite
 engine = create_engine('sqlite:///dbCoffee.db')
