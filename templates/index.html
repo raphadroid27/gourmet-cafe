@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Login</title>
+
+    {% if mensagemCadastroErro %}
+    <div class="alert alert-danger w-100">
+        {{ mensagemCadastroErro }}
+    </div>
+{% endif %}
+
+    {% if mensagemCadastro %}
+     <div class="alert alert-success w-100">
+        {{ mensagemCadastro }}
+    </div>
+ {% endif %}
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -29,17 +42,7 @@
                 </span>
             </div>
 
-            {% if mensagemCadastroErro %}
-            <div class="alert alert-danger w-100">
-                {{ mensagemCadastroErro }}
-            </div>
-        {% endif %}
-
-            {% if mensagemCadastro %}
-             <div class="alert alert-success w-100">
-                {{ mensagemCadastro }}
-            </div>
-         {% endif %}
+            
 
             <button type="submit" class="btn btn-primary btn-block">Cadastrar</button>
         </form>
@@ -48,6 +51,20 @@
     <div class="login">
         <h2>Login</h2>
         
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} w-100">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if mensagemLoginErro %}
+    <div class="alert alert-danger w-100">{{ mensagemLoginErro }}</div>
+{% endif %}
+
         <form id="loginForm" action="/" method="post">
             <div class="form-group">
                 <label for="email">Email:</label>
@@ -61,9 +78,7 @@
                 </span>
             </div>
 
-            {% if mensagemLoginErro %}
-            <div class="alert alert-danger w-100">{{ mensagemLoginErro }}</div>
-        {% endif %}
+
 
             <button type="submit" class="btn btn-primary btn-block">Login</button>
             <div class="text-center mt-3">

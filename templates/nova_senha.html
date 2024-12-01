@@ -3,25 +3,23 @@
 {% block title %}Redefinir Senha{% endblock %}
 
 {% block content %}
-<h2>Redefinir Senha</h2>
-{% if mensagem %}
-    <div class="alert alert-danger">{{ mensagem }}</div>
-{% endif %}
-<form id="redefinirSenhaForm" action="/resetar_senha" method="post">
-    <input type="hidden" name="email" value="{{ email }}">
-    <input type="hidden" name="codigo_recuperacao" value="{{ codigo_recuperacao }}">
-    <label for="novaSenha">Nova Senha:</label>
-    <input type="password" id="novaSenha" name="nova_senha" required><br>
-    <label for="confirmarSenha">Confirmar Nova Senha:</label>
-    <input type="password" id="confirmarSenha" name="confirmar_senha" required><br>
-
-    {% if mensagem %}
-        <div class="alert alert-info">
-            {{ mensagem }}
+<div class="centered-form">
+    <h2>Redefinir Senha</h2>
+    <form id="redefinirSenhaForm" action="/resetar_senha" method="post" class="needs-validation" novalidate>
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="codigo_recuperacao" value="{{ codigo_recuperacao }}">
+        <div class="form-group">
+            <label for="novaSenha">Nova Senha:</label>
+            <input type="password" id="novaSenha" name="nova_senha" class="form-control" required>
+            <div class="invalid-feedback">Por favor, insira a nova senha.</div>
         </div>
-        {% endif %}
-
-    <p><em>A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.</em></p>
-    <button type="submit">Redefinir Senha</button>
-</form>
+        <div class="form-group">
+            <label for="confirmarSenha">Confirmar Nova Senha:</label>
+            <input type="password" id="confirmarSenha" name="confirmar_senha" class="form-control" required>
+            <div class="invalid-feedback">Por favor, confirme a nova senha.</div>
+        </div>
+        <p><em>A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.</em></p>
+        <button type="submit" class="btn btn-primary">Redefinir Senha</button>
+    </form>
+</div>
 {% endblock %}

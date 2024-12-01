@@ -10,6 +10,7 @@ import threading
 import time
 from datetime import datetime
 from uuid import UUID
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'
@@ -19,9 +20,8 @@ def index():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        senha_hash = hashlib.sha256(senha.encode()).hexdigest()
         usuario = db_session.query(Usuario).filter_by(email=email).first()
-        if usuario and usuario.senha == senha_hash:
+        if usuario and check_password_hash(usuario.senha, senha):
             session['user_id'] = usuario.email
             session['user_name'] = usuario.nome
             return redirect(url_for('catalogo'))
@@ -91,20 +91,69 @@ def enviar_codigo():
     email = request.form['email']
     usuario = db_session.query(Usuario).filter_by(email=email).first()
     if usuario:
-        usuario.codigo_recuperacao = gerar_codigo_recuperacao()
+        codigo_recuperacao = gerar_codigo_recuperacao()
+        usuario.codigo_recuperacao = codigo_recuperacao
         db_session.commit()
-        return render_template('recuperar_senha.html', email=email, mensagem="Código de recuperação enviado para o e-mail.")
-    return render_template('recuperar_senha.html', mensagemErro="E-mail não encontrado.")
+        
+        # Simular envio de e-mail criando um arquivo .txt com o código de recuperação
+        with open(f'{email}_codigo_recuperacao.txt', 'w') as file:
+            file.write(f'Código de recuperação: {codigo_recuperacao}')
+        
+        flash("Código de recuperação enviado para o e-mail.", 'info')
+        return render_template('recuperar_senha.html', email=email)
+    flash("E-mail não encontrado.", 'danger')
+    return render_template('recuperar_senha.html')
 
 @app.route('/verificar_codigo', methods=['POST'])
 def verificar_codigo():
     email = request.form['email']
     codigo_recuperacao = request.form['codigo_recuperacao']
-    usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
-    if usuario:
-        return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
-    return render_template('recuperar_senha.html', mensagemErro="Código de recuperação inválido.")
+    print(f'Verificando código de recuperação para o email: {email}')
     
+    usuario = db_session.query(Usuario).filter_by(email=email).first()
+    if usuario:
+        print(f'Usuário encontrado: {usuario.email}')
+        if usuario.codigo_recuperacao == codigo_recuperacao:
+            print('Código de recuperação válido')
+            return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
+        else:
+            print('Código de recuperação inválido')
+    else:
+        print(f'Usuário não encontrado para o email: {email}')
+    
+    flash("Código de recuperação inválido.", 'danger')
+    return render_template('recuperar_senha.html', email=email)
+
+@app.route('/nova_senha', methods=['GET', 'POST'])
+def nova_senha():
+    email = request.args.get('email')
+    codigo_recuperacao = request.args.get('codigo_recuperacao')
+    if request.method == 'POST':
+        nova_senha = request.form['nova_senha']
+        confirmar_senha = request.form['confirmar_senha']
+        
+        # Validação da senha
+        regex = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$')
+        if not regex.match(nova_senha):
+            flash("A senha deve conter pelo menos 8 caracteres, incluindo uma letra e um número.", 'danger')
+            return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
+        
+        if nova_senha != confirmar_senha:
+            flash("As senhas não coincidem.", 'danger')
+            return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
+        
+        usuario = db_session.query(Usuario).filter_by(email=email).first()
+        if usuario and usuario.codigo_recuperacao == codigo_recuperacao:
+            usuario.senha = nova_senha  # Certifique-se de hashear a senha antes de salvar
+            db_session.commit()
+            flash("Senha redefinida com sucesso.", 'success')
+            return redirect(url_for('index'))
+        
+        flash("Código de recuperação inválido.", 'danger')
+        return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
+    
+    return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao)
+
 @app.route('/resetar_senha', methods=['POST'])
 def resetar_senha():
     email = request.form['email']
@@ -113,20 +162,24 @@ def resetar_senha():
     confirmar_senha = request.form['confirmar_senha']
     
     # Validação da senha
-    regex = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+    regex = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$')
     if not regex.match(nova_senha):
-        return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="A senha deve conter pelo menos 8 caracteres, incluindo uma letra, um número e um caractere especial.")
+        flash("A senha deve conter pelo menos 8 caracteres, incluindo uma letra e um número.", 'danger')
+        return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
     
     if nova_senha != confirmar_senha:
-        return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="As senhas não coincidem. Por favor, tente novamente.")
+        flash("As senhas não coincidem.", 'danger')
+        return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
     
-    usuario = db_session.query(Usuario).filter_by(email=email, codigo_recuperacao=codigo_recuperacao).first()
-    if usuario:
-        usuario.senha = hashlib.sha256(nova_senha.encode()).hexdigest()
+    usuario = db_session.query(Usuario).filter_by(email=email).first()
+    if usuario and usuario.codigo_recuperacao == codigo_recuperacao:
+        usuario.senha = generate_password_hash(nova_senha)  # Hashear a senha antes de salvar
         db_session.commit()
-        return render_template('nova_senha.html', mensagem="Senha redefinida com sucesso.")
+        flash("Senha redefinida com sucesso.", 'success')
+        return redirect(url_for('index'))
     
-    return render_template('nova_senha.html', email=email, codigo_recuperacao=codigo_recuperacao, mensagem="Erro ao redefinir a senha.")
+    flash("Código de recuperação inválido.", 'danger')
+    return redirect(url_for('nova_senha', email=email, codigo_recuperacao=codigo_recuperacao))
 
 @app.route('/editar_usuario', methods=['GET', 'POST'])
 @login_required
@@ -463,6 +516,7 @@ def feedback():
         db_session.add(novo_feedback)
         db_session.commit()
         
+        flash('Feedback enviado com sucesso!', 'success')
         return redirect(url_for('feedback'))
     
     return render_template('feedback.html',mensagem="Feedback enviado com sucesso!")
