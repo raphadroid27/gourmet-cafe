@@ -13,7 +13,30 @@ class Usuario(Base):
     senha = Column(String)
     codigo_recuperacao = Column(String)
     data_nascimento = Column(Date)
-    endereco_entrega = Column(String)
+    enderecos = relationship('Endereco', back_populates='usuario')
+    cartoes_credito = relationship('CartaoCredito', back_populates='usuario')
+    compras = relationship('Compra', back_populates='usuario')
+
+class Endereco(Base):
+    __tablename__ = 'enderecos'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email_usuario = Column(String, ForeignKey('usuarios.email'), nullable=False)
+    endereco = Column(String, nullable=False)
+    cidade = Column(String, nullable=False)
+    estado = Column(String, nullable=False)
+    cep = Column(String, nullable=False)
+    usuario = relationship('Usuario', back_populates='enderecos')
+    compras = relationship('Compra', back_populates='endereco')
+
+class CartaoCredito(Base):
+    __tablename__ = 'cartoes_credito'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email_usuario = Column(String, ForeignKey('usuarios.email'), nullable=False)
+    numero_cartao = Column(String, nullable=False)
+    nome_cartao = Column(String, nullable=False)
+    validade_cartao = Column(String, nullable=False)
+    cvv_cartao = Column(String, nullable=False)
+    usuario = relationship('Usuario', back_populates='cartoes_credito')
 
 class Produto(Base):
     __tablename__ = 'produtos'
@@ -28,16 +51,19 @@ class Produto(Base):
 class Compra(Base):
     __tablename__ = 'compras'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    email_usuario = Column(String, nullable=False)
+    email_usuario = Column(String, ForeignKey('usuarios.email'), nullable=False)
     data_compra = Column(Date, nullable=False)
     quantidade = Column(Integer, nullable=False)
     preco_total = Column(Float, nullable=False)
     forma_pagamento = Column(String, nullable=False)
-    numero_cartao = Column(String, nullable=True)
-    nome_cartao = Column(String, nullable=True)
-    validade_cartao = Column(String, nullable=True)
-    cvv_cartao = Column(String, nullable=True)
+    numero_cartao = Column(String)
+    nome_cartao = Column(String)
+    validade_cartao = Column(String)
+    cvv_cartao = Column(String)
+    endereco_entrega = Column(Integer, ForeignKey('enderecos.id'), nullable=False)
+    usuario = relationship('Usuario', back_populates='compras')
     itens = relationship('ItensCompra', back_populates='compra')
+    endereco = relationship('Endereco', back_populates='compras')
 
 class Avaliacao(Base):
     __tablename__ = 'avaliacoes'

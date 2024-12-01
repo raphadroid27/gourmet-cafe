@@ -27,7 +27,7 @@
 <h3>Total: R$ {{ '%.2f'|format(total) }}</h3>
 
 <!-- Formulário de Finalização de Compra -->
-<form action="{{ url_for('finalizar_compra') }}" method="post" class="needs-validation" novalidate>
+<form id="finalizar-compra-form" action="{{ url_for('finalizar_compra') }}" method="post" class="needs-validation" novalidate>
     <h2>Endereço de Entrega</h2>
     <div class="form-group">
         <label for="endereco">Endereço:</label>
@@ -74,21 +74,25 @@
         <div class="form-group">
             <label for="numero_cartao">Número do Cartão:</label>
             <input type="text" id="numero_cartao" name="numero_cartao" class="form-control">
+            <div class="invalid-feedback">Por favor, insira o número do cartão.</div>
         </div>
         <div class="form-group">
             <label for="nome_cartao">Nome no Cartão:</label>
             <input type="text" id="nome_cartao" name="nome_cartao" class="form-control">
+            <div class="invalid-feedback">Por favor, insira o nome no cartão.</div>
         </div>
         <div class="form-group">
             <label for="validade_cartao">Validade:</label>
             <input type="text" id="validade_cartao" name="validade_cartao" class="form-control">
+            <div class="invalid-feedback">Por favor, insira a validade do cartão.</div>
         </div>
         <div class="form-group">
             <label for="cvv_cartao">CVV:</label>
             <input type="text" id="cvv_cartao" name="cvv_cartao" class="form-control">
+            <div class="invalid-feedback">Por favor, insira o CVV do cartão.</div>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary" onclick="exibirAlerta()">Finalizar Compra</button>
+    <button type="submit" class="btn btn-primary">Finalizar Compra</button>
 </form>
 
 <script>
@@ -97,15 +101,29 @@ document.querySelectorAll('input[name="forma_pagamento"]').forEach(function(elem
         var cartaoCreditoInfo = document.getElementById('cartao_credito_info');
         if (this.value === 'cartao_credito') {
             cartaoCreditoInfo.style.display = 'block';
+            document.getElementById('numero_cartao').required = true;
+            document.getElementById('nome_cartao').required = true;
+            document.getElementById('validade_cartao').required = true;
+            document.getElementById('cvv_cartao').required = true;
         } else {
             cartaoCreditoInfo.style.display = 'none';
+            document.getElementById('numero_cartao').required = false;
+            document.getElementById('nome_cartao').required = false;
+            document.getElementById('validade_cartao').required = false;
+            document.getElementById('cvv_cartao').required = false;
         }
     });
 });
 
-function exibirAlerta() {
-    alert('Compra finalizada com sucesso!');
-}
+document.getElementById('finalizar-compra-form').addEventListener('submit', function(event) {
+    var form = this;
+    if (form.checkValidity() === false) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    form.classList.add('was-validated');
+});
 </script>
 </div>
+
 {% endblock %}

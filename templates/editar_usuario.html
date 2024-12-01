@@ -4,21 +4,58 @@
 
 {% block content %}
 <div class="centered-form">
-<h2>Editar Informações do Usuário</h2>
-<form action="{{ url_for('editar_usuario') }}" method="post">
-    <div class="form-group">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" class="form-control" value="{{ usuario.nome }}" required>
-    </div>
-    <div class="form-group">
-        <label for="data_nascimento">Data de Nascimento:</label>
-        <input type="date" id="data_nascimento" name="data_nascimento" class="form-control" value="{{ usuario.data_nascimento }}" required>
-    </div>
-    <div class="form-group">
-        <label for="endereco_entrega">Endereço de Entrega:</label>
-        <input type="text" id="endereco_entrega" name="endereco_entrega" class="form-control" value="{{ usuario.endereco_entrega }}" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Salvar</button>
-</form>
+    <h2>Editar Informações do Usuário</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form action="{{ url_for('editar_usuario') }}" method="post">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" class="form-control" value="{{ usuario.nome }}" required>
+        </div>
+        <div class="form-group">
+            <label for="data_nascimento">Data de Nascimento:</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" class="form-control" value="{{ usuario.data_nascimento.strftime('%Y-%m-%d') if usuario.data_nascimento else '' }}" required>
+        </div>
+
+        <h2>Endereços</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Endereço</th>
+                    <th>Cidade</th>
+                    <th>Estado</th>
+                    <th>CEP</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for endereco in enderecos %}
+                <tr>
+                    <input type="hidden" name="endereco_id" value="{{ endereco.id }}">
+                    <td><input type="text" name="endereco_{{ endereco.id }}" class="form-control" value="{{ endereco.endereco }}" required></td>
+                    <td><input type="text" name="cidade_{{ endereco.id }}" class="form-control" value="{{ endereco.cidade }}" required></td>
+                    <td><input type="text" name="estado_{{ endereco.id }}" class="form-control" value="{{ endereco.estado }}" required></td>
+                    <td><input type="text" name="cep_{{ endereco.id }}" class="form-control" value="{{ endereco.cep }}" required></td>
+                    <td>
+                        <form action="{{ url_for('excluir_endereco', endereco_id=endereco.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    </form>
 </div>
 {% endblock %}

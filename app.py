@@ -1,7 +1,7 @@
 from uuid import uuid4
 from flask import Flask, request, render_template,flash,redirect, url_for, jsonify, session
 from email.mime.text import MIMEText
-from models import Usuario, Produto, Avaliacao, Compra, ItensCompra, Feedback, session as db_session
+from models import Usuario, Produto, Avaliacao, Compra, ItensCompra, Feedback, Endereco, session as db_session
 from functools import wraps
 import hashlib
 import re
@@ -157,12 +157,12 @@ def ver_produto(produto_id):
 def adicionar_ao_carrinho():
     produto_id = request.form.get('produto_id')
     if not produto_id:
-        flash("Produto não encontrado.")
+        flash("Produto não encontrado.", 'danger')
         return redirect(url_for('catalogo'))
 
     produto = db_session.query(Produto).filter_by(id=produto_id).first()
     if not produto:
-        flash(f"Produto {produto_id} não encontrado.")
+        flash(f"Produto {produto_id} não encontrado.", 'danger')
         return redirect(url_for('catalogo'))
 
     if 'carrinho' not in session:
@@ -184,7 +184,7 @@ def adicionar_ao_carrinho():
 
     session.modified = True
     
-    flash(f"Produto {produto.nome} adicionado ao carrinho.")
+    flash(f"Produto {produto.nome} adicionado ao carrinho.", 'success')
     return redirect(url_for('catalogo'))
 
 @app.route('/ver_carrinho')
@@ -223,24 +223,39 @@ def limpar_carrinho():
 @login_required
 def finalizar_compra():
     if request.method == 'POST':
-        endereco = request.form['endereco']
-        cidade = request.form['cidade']
-        estado = request.form['estado']
-        cep = request.form['cep']
-        forma_pagamento = request.form['forma_pagamento']
+        endereco = request.form.get('endereco')
+        cidade = request.form.get('cidade')
+        estado = request.form.get('estado')
+        cep = request.form.get('cep')
+        forma_pagamento = request.form.get('forma_pagamento')
         numero_cartao = request.form.get('numero_cartao')
         nome_cartao = request.form.get('nome_cartao')
         validade_cartao = request.form.get('validade_cartao')
         cvv_cartao = request.form.get('cvv_cartao')
         carrinho = session.get('carrinho', [])
         total = sum(item['preco'] * item['quantidade'] for item in carrinho)
-        
+
+        if not forma_pagamento:
+            flash('Por favor, selecione a forma de pagamento.', 'danger')
+            return redirect(url_for('finalizar_compra'))
+
         # Obter o último código de pedido e gerar o próximo código sequencial
         ultimo_pedido = db_session.query(Compra).order_by(Compra.id.desc()).first()
         if ultimo_pedido:
             codigo_pedido = int(ultimo_pedido.id) + 1
         else:
             codigo_pedido = 1
+
+        # Salvar o endereço de entrega no banco de dados
+        novo_endereco = Endereco(
+            email_usuario=session['user_id'],
+            endereco=endereco,
+            cidade=cidade,
+            estado=estado,
+            cep=cep
+        )
+        db_session.add(novo_endereco)
+        db_session.commit()
 
         # Salvar a compra no banco de dados
         nova_compra = Compra(
@@ -253,11 +268,12 @@ def finalizar_compra():
             numero_cartao=numero_cartao,
             nome_cartao=nome_cartao,
             validade_cartao=validade_cartao,
-            cvv_cartao=cvv_cartao
+            cvv_cartao=cvv_cartao,
+            endereco_entrega=novo_endereco.id
         )
         db_session.add(nova_compra)
         db_session.commit()
-        
+
         # Salvar os itens comprados na tabela ItensCompra
         for item in carrinho:
             novo_item = ItensCompra(
@@ -267,15 +283,15 @@ def finalizar_compra():
                 preco_unitario=item['preco']
             )
             db_session.add(novo_item)
-        
+
         db_session.commit()
-        
+
         # Limpar o carrinho
         session.pop('carrinho', None)
-        
+
         # Redirecionar para a página de detalhes do pedido
         return redirect(url_for('detalhes_pedido', pedido_id=codigo_pedido))
-    
+
     carrinho = session.get('carrinho', [])
     total = sum(item['preco'] * item['quantidade'] for item in carrinho)
     return render_template('finalizar_compra.html', produtos=carrinho, total=total)
