@@ -132,13 +132,13 @@ def resetar_senha():
 @login_required
 def editar_usuario():
     usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
+    enderecos = db_session.query(Endereco).filter_by(email_usuario=session['user_id']).all()
     if request.method == 'POST':
         usuario.nome = request.form['nome']
-        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%Y-%m-%d').date()
-        usuario.endereco_entrega = request.form['endereco_entrega']
+        usuario.data_nascimento = datetime.strptime(request.form['data_nascimento'], '%d/%m/%Y').date()
         db_session.commit()
         return redirect(url_for('area_cliente'))
-    return render_template('editar_usuario.html', usuario=usuario)
+    return render_template('editar_usuario.html', usuario=usuario, enderecos=enderecos)
 
 @app.route('/catalogo')
 def catalogo():
@@ -391,9 +391,10 @@ def status_devolucao():
 @login_required
 def area_cliente():
     usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
-    pedidos = db_session.query(Compra).filter_by(email_usuario=session['user_id']).all()
+    pedidos = db_session.query(Compra).filter_by(email_usuario=session['user_id']).order_by(Compra.id.desc()).all()
     avaliacoes = db_session.query(Avaliacao).filter_by(email_usuario=session['user_id']).all()
-    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes)
+    current_date = datetime.now().strftime('%d/%m/%Y')
+    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes, current_date=current_date)
 
 @app.route('/detalhes_pedido/<int:pedido_id>')
 @login_required
@@ -514,6 +515,23 @@ def excluir_usuario():
         flash('Usuário excluído com sucesso!', 'success')
         return jsonify({'success': True})
     return jsonify({'success': False}), 404
+
+@app.route('/excluir_endereco/<int:endereco_id>', methods=['POST'])
+@login_required
+def excluir_endereco(endereco_id):
+    endereco = db_session.query(Endereco).filter_by(id=endereco_id).first()
+    if endereco:
+        # Verificar se o endereço está sendo usado em alguma compra
+        compras_usando_endereco = db_session.query(Compra).filter_by(endereco_entrega=endereco_id).all()
+        if compras_usando_endereco:
+            flash('Não é possível excluir o endereço, pois ele está sendo usado em uma ou mais compras.', 'danger')
+        else:
+            db_session.delete(endereco)
+            db_session.commit()
+            flash('Endereço excluído com sucesso.', 'success')
+    else:
+        flash('Endereço não encontrado.', 'danger')
+    return redirect(url_for('editar_usuario'))
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()

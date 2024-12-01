@@ -3,12 +3,25 @@
 {% block title %}Editar Avaliação{% endblock %}
 
 {% block content %}
-<h1>Editar Avaliação</h1>
-<form action="{{ url_for('editar_avaliacao', avaliacao_id=avaliacao.id) }}" method="post">
-    <label for="nota">Nota:</label>
-    <input type="number" id="nota" name="nota" min="1" max="5" value="{{ avaliacao.nota }}" required>
-    <label for="comentario">Comentário:</label>
-    <textarea id="comentario" name="comentario">{{ avaliacao.comentario }}</textarea>
-    <button class="btn btn-primary" type="submit">Atualizar Avaliação</button>
-</form>
+<div class="centered-form">
+    <h2>Editar Avaliação</h2>
+    <form action="{{ url_for('editar_avaliacao', avaliacao_id=avaliacao.id) }}" method="post" class="needs-validation" novalidate>
+        <div class="form-group">
+            <label for="nota">Nota:</label>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="nota" value="5" {% if avaliacao.nota == 5 %}checked{% endif %} /><label for="star5" title="5 estrelas">★</label>
+                <input type="radio" id="star4" name="nota" value="4" {% if avaliacao.nota == 4 %}checked{% endif %} /><label for="star4" title="4 estrelas">★</label>
+                <input type="radio" id="star3" name="nota" value="3" {% if avaliacao.nota == 3 %}checked{% endif %} /><label for="star3" title="3 estrelas">★</label>
+                <input type="radio" id="star2" name="nota" value="2" {% if avaliacao.nota == 2 %}checked{% endif %} /><label for="star2" title="2 estrelas">★</label>
+                <input type="radio" id="star1" name="nota" value="1" {% if avaliacao.nota == 1 %}checked{% endif %} /><label for="star1" title="1 estrela">★</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="comentario">Comentário:</label>
+            <textarea id="comentario" name="comentario" class="form-control" required>{{ avaliacao.comentario }}</textarea>
+            <div class="invalid-feedback">Por favor, insira um comentário.</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Atualizar Avaliação</button>
+    </form>
+</div>
 {% endblock %}

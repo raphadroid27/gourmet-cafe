@@ -6,11 +6,12 @@
 <h2>Informações do Usuário</h2>
 <p>Nome: {{ usuario.nome }}</p>
 <p>Email: {{ usuario.email }}</p>
-<p>Data de Nascimento: {{ usuario.data_nascimento }}</p>
+<p>Data de Nascimento: {{ usuario.data_nascimento.strftime('%d/%m/%Y') if usuario.data_nascimento else 'N/A' }}</p>
 <p>Endereço de Entrega: {{ usuario.endereco_entrega }}</p>
 <a href="{{ url_for('editar_usuario') }}" class="btn btn-primary">Editar Informações</a>
 
 <h2>Pedidos</h2>
+<div class="table-responsive">
 <table class="table">
     <thead>
         <tr>
@@ -25,19 +26,22 @@
         {% for pedido in pedidos %}
         <tr>
             <td>{{ pedido.id }}</td>
-            <td>{{ pedido.data_compra }}</td>
+            <td>{{ pedido.data_compra.strftime('%d/%m/%Y') }}</td>
             <td>R$ {{ '%.2f'|format(pedido.preco_total) }}</td>
             <td>{{ pedido.quantidade }}</td>
             <td>
                 <a href="{{ url_for('detalhes_pedido', pedido_id=pedido.id) }}" class="btn btn-secondary">Ver Detalhes</a>
+                {% if pedido.data_compra.strftime('%d/%m/%Y') == current_date %}
                 <a href="{{ url_for('devolucao', pedido_id=pedido.id) }}" class="btn btn-danger">Solicitar Devolução</a>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
+</div>
 <h2>Avaliações</h2>
+<div class="table-responsive">
 <table class="table">
     <thead>
         <tr>
@@ -67,6 +71,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 </div>
 
 {% endblock %}
