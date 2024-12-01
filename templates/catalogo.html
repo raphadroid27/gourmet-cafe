@@ -26,20 +26,17 @@
     <div class="produto">
         <h2>{{ produto.nome }}</h2>
         <img class="imagem-catalogo" src="{{ produto.imagem }}" alt="{{ produto.nome }}">
-        <p>{{ produto.descricao }}</p>
-        <p>Preço: {{ produto.preco }}</p>
+        <br>
+        <p class="paragrafo">{{ produto.descricao }}</p>
+        <p><strong>Preço:</strong> R$ {{ produto.preco }}0</p>
         
-        <form  action="{{ url_for('adicionar_ao_carrinho') }}" method="post">
-            <input type="hidden" name="produto_id" value="{{ produto.id }}">
-
         <div class="text-center">
-            <button type="submit" class="btn btn-primary">Adicionar ao Carrinho</button>
-        </form>
-
+            <form action="{{ url_for('adicionar_ao_carrinho') }}" method="post">
+                <input type="hidden" name="produto_id" value="{{ produto.id }}">
+                <button type="submit" class="btn btn-primary">Adicionar ao Carrinho</button>
+            </form>
             <a href="{{ url_for('ver_produto', produto_id=produto.id) }}" class="btn btn-secondary">Ver Detalhes</a>
-        
         </div>
-
     </div>
     {% endfor %}
 </div>

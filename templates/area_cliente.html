@@ -4,10 +4,19 @@
 {% block content %}
 <div class="centered-form">
 <h2>Informações do Usuário</h2>
-<p>Nome: {{ usuario.nome }}</p>
-<p>Email: {{ usuario.email }}</p>
-<p>Data de Nascimento: {{ usuario.data_nascimento.strftime('%d/%m/%Y') if usuario.data_nascimento else 'N/A' }}</p>
-<p>Endereço de Entrega: {{ usuario.endereco_entrega }}</p>
+<p><strong>Nome:</strong> {{ usuario.nome }}</p>
+<p><strong>Email:</strong> {{ usuario.email }}</p>
+<p><strong>Data de Nascimento:</strong> {{ usuario.data_nascimento.strftime('%d/%m/%Y') if usuario.data_nascimento else 'N/A' }}</p>
+<p><strong>Endereço de Entrega: </strong>
+    {% if endereco_entrega %}
+        {{ endereco_entrega.endereco }}, {{ endereco_entrega.cidade }}, {{ endereco_entrega.estado }}, {{ endereco_entrega.cep }}
+    {% else %}
+        N/A
+    {% endif %}
+    
+    <br>
+    <br>
+
 <a href="{{ url_for('editar_usuario') }}" class="btn btn-primary">Editar Informações</a>
 
 <h2>Pedidos</h2>

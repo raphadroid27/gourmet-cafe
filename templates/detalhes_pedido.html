@@ -5,8 +5,8 @@
 {% block content %}
 <h2>Detalhes do Pedido</h2>
 <p><strong>Código do Pedido:</strong> {{ pedido.id }}</p>
-<p><strong>Data da Compra:</strong> {{ pedido.data_compra }}</p>
-<p><strong>Endereço de Entrega:</strong> {{ pedido.endereco_entrega }}</p>
+<p><strong>Data da Compra:</strong> {{ pedido.data_compra.strftime('%d/%m/%Y') }}</p>
+<p><strong>Endereço de Entrega:</strong> {{ endereco.endereco }}, {{ endereco.cidade }}, {{ endereco.estado }}, {{ endereco.cep }}</p>
 <p><strong>Forma de Pagamento:</strong> {{ pedido.forma_pagamento }}</p>
 <p><strong>Valor Total:</strong> R$ {{ '%.2f'|format(pedido.preco_total) }}</p>
 

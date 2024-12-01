@@ -24,11 +24,30 @@
         {% endfor %}
     </tbody>
 </table>
-<h3>Total: R$ {{ '%.2f'|format(total) }}</h3>
+<h3>Total: R$ <span id="total">{{ '%.2f'|format(total) }}</span></h3>
+
+<!-- Campo para Cupom -->
+<div class="form-group">
+    <label for="cupom">Cupom de Desconto:</label>
+    <input type="text" id="cupom" name="cupom" class="form-control">
+    <button type="button" class="btn btn-primary mt-2" onclick="validarCupom()">Aplicar Cupom</button>
+    <div id="cupom-feedback" class="invalid-feedback"></div>
+</div>
 
 <!-- Formulário de Finalização de Compra -->
 <form id="finalizar-compra-form" action="{{ url_for('finalizar_compra') }}" method="post" class="needs-validation" novalidate>
     <h2>Endereço de Entrega</h2>
+    <div class="form-group">
+        <label for="endereco_selecionado">Selecionar Endereço:</label>
+        <select id="endereco_selecionado" class="form-control" onchange="preencherEndereco()">
+            <option value="">Selecione um endereço</option>
+            {% for endereco in enderecos %}
+            <option value="{{ endereco.id }}" data-endereco="{{ endereco.endereco }}" data-cidade="{{ endereco.cidade }}" data-estado="{{ endereco.estado }}" data-cep="{{ endereco.cep }}">
+                {{ endereco.endereco }}, {{ endereco.cidade }}, {{ endereco.estado }}, {{ endereco.cep }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
     <div class="form-group">
         <label for="endereco">Endereço:</label>
         <input type="text" id="endereco" name="endereco" class="form-control" required>
@@ -123,6 +142,44 @@ document.getElementById('finalizar-compra-form').addEventListener('submit', func
     }
     form.classList.add('was-validated');
 });
+
+function validarCupom() {
+    var cupom = document.getElementById('cupom').value;
+    fetch('{{ url_for("validar_cupom") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cupom: cupom })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.desconto > 0) {
+            var totalElement = document.getElementById('total');
+            var total = parseFloat(totalElement.innerText.replace('R$ ', ''));
+            var desconto = total * (data.desconto / 100);
+            var novoTotal = total - desconto;
+            totalElement.innerText = 'R$ ' + novoTotal.toFixed(2);
+            document.getElementById('cupom-feedback').innerText = 'Cupom aplicado com sucesso!';
+            document.getElementById('cupom-feedback').classList.remove('invalid-feedback');
+            document.getElementById('cupom-feedback').classList.add('valid-feedback');
+        } else {
+            document.getElementById('cupom-feedback').innerText = 'Cupom inválido.';
+            document.getElementById('cupom-feedback').classList.remove('valid-feedback');
+            document.getElementById('cupom-feedback').classList.add('invalid-feedback');
+        }
+    })
+    .catch(error => console.error('Erro:', error));
+}
+
+function preencherEndereco() {
+    var select = document.getElementById('endereco_selecionado');
+    var option = select.options[select.selectedIndex];
+    document.getElementById('endereco').value = option.getAttribute('data-endereco');
+    document.getElementById('cidade').value = option.getAttribute('data-cidade');
+    document.getElementById('estado').value = option.getAttribute('data-estado');
+    document.getElementById('cep').value = option.getAttribute('data-cep');
+}
 </script>
 </div>
 

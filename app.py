@@ -222,6 +222,9 @@ def limpar_carrinho():
 @app.route('/finalizar_compra', methods=['GET', 'POST'])
 @login_required
 def finalizar_compra():
+    usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
+    enderecos = db_session.query(Endereco).filter_by(email_usuario=session['user_id']).all()
+    
     if request.method == 'POST':
         endereco = request.form.get('endereco')
         cidade = request.form.get('cidade')
@@ -234,10 +237,40 @@ def finalizar_compra():
         cvv_cartao = request.form.get('cvv_cartao')
         carrinho = session.get('carrinho', [])
         total = sum(item['preco'] * item['quantidade'] for item in carrinho)
+        cupom = request.form.get('cupom')
+
+        if cupom:
+            desconto = verificar_cupom(cupom)
+            if desconto:
+                total -= total * (desconto / 100)
 
         if not forma_pagamento:
             flash('Por favor, selecione a forma de pagamento.', 'danger')
             return redirect(url_for('finalizar_compra'))
+
+        # Verificar se o endereço já existe
+        endereco_existente = db_session.query(Endereco).filter_by(
+            email_usuario=session['user_id'],
+            endereco=endereco,
+            cidade=cidade,
+            estado=estado,
+            cep=cep
+        ).first()
+
+        if endereco_existente:
+            endereco_id = endereco_existente.id
+        else:
+            # Salvar o novo endereço no banco de dados
+            novo_endereco = Endereco(
+                email_usuario=session['user_id'],
+                endereco=endereco,
+                cidade=cidade,
+                estado=estado,
+                cep=cep
+            )
+            db_session.add(novo_endereco)
+            db_session.commit()
+            endereco_id = novo_endereco.id
 
         # Obter o último código de pedido e gerar o próximo código sequencial
         ultimo_pedido = db_session.query(Compra).order_by(Compra.id.desc()).first()
@@ -245,17 +278,6 @@ def finalizar_compra():
             codigo_pedido = int(ultimo_pedido.id) + 1
         else:
             codigo_pedido = 1
-
-        # Salvar o endereço de entrega no banco de dados
-        novo_endereco = Endereco(
-            email_usuario=session['user_id'],
-            endereco=endereco,
-            cidade=cidade,
-            estado=estado,
-            cep=cep
-        )
-        db_session.add(novo_endereco)
-        db_session.commit()
 
         # Salvar a compra no banco de dados
         nova_compra = Compra(
@@ -269,7 +291,7 @@ def finalizar_compra():
             nome_cartao=nome_cartao,
             validade_cartao=validade_cartao,
             cvv_cartao=cvv_cartao,
-            endereco_entrega=novo_endereco.id
+            endereco_entrega=endereco_id
         )
         db_session.add(nova_compra)
         db_session.commit()
@@ -294,11 +316,12 @@ def finalizar_compra():
 
     carrinho = session.get('carrinho', [])
     total = sum(item['preco'] * item['quantidade'] for item in carrinho)
-    return render_template('finalizar_compra.html', produtos=carrinho, total=total)
+    return render_template('finalizar_compra.html', produtos=carrinho, total=total, enderecos=enderecos)
 
 @app.route('/validar_cupom', methods=['POST'])
 def validar_cupom():
-    cupom = request.form['cupom']
+    data = request.get_json()
+    cupom = data.get('cupom')
     desconto = verificar_cupom(cupom)
     if desconto:
         return jsonify({'desconto': desconto})
@@ -393,8 +416,12 @@ def area_cliente():
     usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
     pedidos = db_session.query(Compra).filter_by(email_usuario=session['user_id']).order_by(Compra.id.desc()).all()
     avaliacoes = db_session.query(Avaliacao).filter_by(email_usuario=session['user_id']).all()
+    ultimo_pedido = pedidos[0] if pedidos else None
+    endereco_entrega = None
+    if ultimo_pedido:
+        endereco_entrega = db_session.query(Endereco).filter_by(id=ultimo_pedido.endereco_entrega).first()
     current_date = datetime.now().strftime('%d/%m/%Y')
-    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes, current_date=current_date)
+    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes, current_date=current_date, endereco_entrega=endereco_entrega)
 
 @app.route('/detalhes_pedido/<int:pedido_id>')
 @login_required
@@ -402,13 +429,9 @@ def detalhes_pedido(pedido_id):
     pedido = db_session.query(Compra).filter_by(id=pedido_id).first()
     if not pedido:
         return "Pedido não encontrado", 404
+    endereco = db_session.query(Endereco).filter_by(id=pedido.endereco_entrega).first()
     itens = db_session.query(ItensCompra).filter_by(id_compra=pedido_id).all()
-    
-    # Adicione prints para verificar os dados
-    print(f"Pedido: {pedido}")
-    print(f"Itens: {itens}")
-    
-    return render_template('detalhes_pedido.html', pedido=pedido, itens=itens)
+    return render_template('detalhes_pedido.html', pedido=pedido, endereco=endereco, itens=itens)
 
 @app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
