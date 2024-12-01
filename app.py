@@ -399,9 +399,26 @@ def devolucao():
         numero_pedido = request.form['numero_pedido']
         motivo = request.form['motivo']
         contato = request.form['contato']
-        # Lógica para processar a devolução
-        return render_template('devolucao_confirmacao.html', numero_pedido=numero_pedido)
-    return render_template('devolucao.html')
+        email_usuario = session['user_id']
+        
+        # Criar uma nova instância de Devolucao
+        nova_devolucao = Devolucao(
+            numero_pedido=numero_pedido,
+            motivo=motivo,
+            contato=contato,
+            email_usuario=email_usuario,
+            data_solicitacao=datetime.utcnow()
+        )
+        
+        # Salvar a devolução no banco de dados
+        db_session.add(nova_devolucao)
+        db_session.commit()
+        
+        flash('Devolução solicitada com sucesso!', 'success')
+        return redirect(url_for('devolucao', numero_pedido=numero_pedido))
+    
+    numero_pedido = request.args.get('numero_pedido', '')
+    return render_template('devolucao.html', numero_pedido=numero_pedido)
 
 @app.route('/status_devolucao', methods=['GET'])
 def status_devolucao():
@@ -567,6 +584,19 @@ def excluir_endereco(endereco_id):
     else:
         flash('Endereço não encontrado.', 'danger')
     return redirect(url_for('editar_usuario'))
+
+@app.route('/responder_devolucao/<int:devolucao_id>', methods=['POST'])
+def responder_devolucao(devolucao_id):
+    resposta = request.form['resposta']
+    devolucao = db_session.query(Devolucao).filter_by(id=devolucao_id).first()
+    if devolucao:
+        devolucao.resposta = resposta
+        devolucao.respondido = True
+        db_session.commit()
+        flash('Resposta enviada com sucesso!', 'success')
+    else:
+        flash('Devolução não encontrada.', 'danger')
+    return redirect(url_for('gerenciar_sistema'))
 
 if __name__ == '__main__':
     threading.Thread(target=atualizar_codigos_recuperacao).start()

@@ -6,18 +6,21 @@
 
     <div class="centered-form">
         <h2>Solicitar Devolução</h2>
-        <form action="{{ url_for('devolucao') }}" method="post">
+        <form action="{{ url_for('devolucao') }}" method="post" class="needs-validation" novalidate>
             <div class="form-group">
                 <label for="numero_pedido">Número do Pedido:</label>
                 <input type="text" id="numero_pedido" name="numero_pedido" class="form-control" required>
+                <div class="invalid-feedback">Por favor, insira o número do pedido.</div>
             </div>
             <div class="form-group">
-                <label for="motivo">Motivo da Devolução:</label>
+                <label for="motivo">Motivo:</label>
                 <textarea id="motivo" name="motivo" class="form-control" required></textarea>
+                <div class="invalid-feedback">Por favor, insira o motivo da devolução.</div>
             </div>
             <div class="form-group">
                 <label for="contato">Informações de Contato:</label>
                 <input type="text" id="contato" name="contato" class="form-control" required>
+                <div class="invalid-feedback">Por favor, insira suas informações de contato.</div>
             </div>
             <button type="submit" class="btn btn-primary">Solicitar Devolução</button>
         </form>

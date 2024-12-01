@@ -65,6 +65,9 @@
                 <th>Número do Pedido</th>
                 <th>Motivo</th>
                 <th>Contato</th>
+                <th>Email do Usuário</th>
+                <th>Data da Solicitação</th>
+                <th>Resposta</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -74,6 +77,14 @@
                 <td>{{ devolucao.numero_pedido }}</td>
                 <td>{{ devolucao.motivo }}</td>
                 <td>{{ devolucao.contato }}</td>
+                <td>{{ devolucao.email_usuario }}</td>
+                <td>{{ devolucao.data_solicitacao.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <form action="{{ url_for('responder_devolucao', devolucao_id=devolucao.id) }}" method="post" style="display:inline;">
+                        <input type="text" name="resposta" class="form-control" value="{{ devolucao.resposta }}">
+                        <button type="submit" class="btn btn-primary mt-2">Enviar</button>
+                    </form>
+                </td>
                 <td class="text-center">
                     <form action="{{ url_for('gerenciar_sistema') }}" method="post" style="display:inline;">
                         <input type="hidden" name="devolucao_id" value="{{ devolucao.id }}">

@@ -102,6 +102,8 @@ class Devolucao(Base):
     numero_pedido = Column(String, nullable=False)
     motivo = Column(String, nullable=False)
     contato = Column(String, nullable=False)
+    email_usuario = Column(String, ForeignKey('usuarios.email'), nullable=False)
+    data_solicitacao = Column(DateTime, default=datetime.utcnow, nullable=False)
     respondido = Column(Boolean, default=False)
     resposta = Column(String, nullable=True)
 
