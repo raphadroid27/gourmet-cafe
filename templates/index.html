@@ -11,17 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro e Login</title>
 
-    {% if mensagemCadastroErro %}
-    <div class="alert alert-danger w-100">
-        {{ mensagemCadastroErro }}
-    </div>
-{% endif %}
-
-    {% if mensagemCadastro %}
-     <div class="alert alert-success w-100">
-        {{ mensagemCadastro }}
-    </div>
- {% endif %}
+  
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -30,6 +20,18 @@
 <body>
     <div class="login">
         <h2>Cadastro</h2>
+
+        {% if mensagemCadastroErro %}
+        <div class="alert alert-danger w-100">
+            {{ mensagemCadastroErro }}
+        </div>
+    {% endif %}
+    
+        {% if mensagemCadastro %}
+         <div class="alert alert-success w-100">
+            {{ mensagemCadastro }}
+        </div>
+     {% endif %}
 
         <form id="cadastroForm" action="/cadastrar" method="post">
             <div class="form-group">
