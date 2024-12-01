@@ -433,12 +433,13 @@ def area_cliente():
     usuario = db_session.query(Usuario).filter_by(email=session['user_id']).first()
     pedidos = db_session.query(Compra).filter_by(email_usuario=session['user_id']).order_by(Compra.id.desc()).all()
     avaliacoes = db_session.query(Avaliacao).filter_by(email_usuario=session['user_id']).all()
+    devolucoes = db_session.query(Devolucao).filter_by(email_usuario=session['user_id']).order_by(Devolucao.data_solicitacao.desc()).all()
     ultimo_pedido = pedidos[0] if pedidos else None
     endereco_entrega = None
     if ultimo_pedido:
         endereco_entrega = db_session.query(Endereco).filter_by(id=ultimo_pedido.endereco_entrega).first()
     current_date = datetime.now().strftime('%d/%m/%Y')
-    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes, current_date=current_date, endereco_entrega=endereco_entrega)
+    return render_template('area_cliente.html', usuario=usuario, pedidos=pedidos, avaliacoes=avaliacoes, devolucoes=devolucoes, current_date=current_date, endereco_entrega=endereco_entrega)
 
 @app.route('/detalhes_pedido/<int:pedido_id>')
 @login_required
@@ -518,13 +519,15 @@ def gerenciar_sistema():
     search_produto = request.args.get('search_produto', '')
     search_usuario = request.args.get('search_usuario', '')
     search_devolucao = request.args.get('search_devolucao', '')
+    search_pedido = request.args.get('search_pedido', '')
 
-    feedbacks = db_session.query(Feedback).filter(Feedback.nome.contains(search_feedback) | Feedback.email.contains(search_feedback)).all()
+    feedbacks = db_session.query(Feedback).filter(Feedback.nome.contains(search_feedback) | Feedback.email.contains(search_feedback)).order_by(Feedback.data.desc()).all()
     produtos = db_session.query(Produto).filter(Produto.nome.contains(search_produto) | Produto.descricao.contains(search_produto)).all()
     usuarios = db_session.query(Usuario).filter(Usuario.nome.contains(search_usuario) | Usuario.email.contains(search_usuario)).all()
-    devolucoes = db_session.query(Devolucao).filter(Devolucao.numero_pedido.contains(search_devolucao)).all()
+    devolucoes = db_session.query(Devolucao).filter(Devolucao.numero_pedido.contains(search_devolucao)).order_by(Devolucao.data_solicitacao.desc()).all()
+    pedidos = db_session.query(Compra).filter(Compra.email_usuario.contains(search_pedido)).order_by(Compra.data_compra.desc()).all()
 
-    return render_template('gerenciar_sistema.html', feedbacks=feedbacks, produtos=produtos, usuarios=usuarios, devolucoes=devolucoes)
+    return render_template('gerenciar_sistema.html', feedbacks=feedbacks, produtos=produtos, usuarios=usuarios, devolucoes=devolucoes, pedidos=pedidos)
 
 @app.route('/editar_produto/<uuid:produto_id>', methods=['GET', 'POST'])
 def editar_produto(produto_id):

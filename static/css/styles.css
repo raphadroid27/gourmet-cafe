@@ -170,6 +170,11 @@ label {
     border-color: #c3e6cb;
 }
 
+.badge-success, .badge-danger {
+    
+    font-size: large;
+}
+
 /* Estilos de Formulário */
 .form-group {
     margin-bottom: 15px;

@@ -63,10 +63,10 @@
         <thead>
             <tr>
                 <th>Número do Pedido</th>
-                <th>Motivo</th>
-                <th>Contato</th>
                 <th>Email do Usuário</th>
                 <th>Data da Solicitação</th>
+                <th>Motivo</th>
+                <th>Contato</th>
                 <th>Resposta</th>
                 <th>Ações</th>
             </tr>
@@ -75,24 +75,61 @@
             {% for devolucao in devolucoes %}
             <tr>
                 <td>{{ devolucao.numero_pedido }}</td>
-                <td>{{ devolucao.motivo }}</td>
-                <td>{{ devolucao.contato }}</td>
                 <td>{{ devolucao.email_usuario }}</td>
                 <td>{{ devolucao.data_solicitacao.strftime('%d/%m/%Y') }}</td>
+                <td>{{ devolucao.motivo }}</td>
+                <td>{{ devolucao.contato }}</td>
+                
                 <td>
-                    <form action="{{ url_for('responder_devolucao', devolucao_id=devolucao.id) }}" method="post" style="display:inline;">
-                        <input type="text" name="resposta" class="form-control" value="{{ devolucao.resposta }}">
-                        <button type="submit" class="btn btn-primary mt-2">Enviar</button>
+                    <form action="{{ url_for('responder_devolucao', devolucao_id=devolucao.id) }}" method="post" style="display: flex; align-items: center;">
+                        <textarea name="resposta" class="form-control mr-2" style="resize: vertical;">{{ devolucao.resposta }}</textarea>
+                        <button type="submit" class="btn btn-primary">Enviar</button>
                     </form>
                 </td>
                 <td class="text-center">
-                    <form action="{{ url_for('gerenciar_sistema') }}" method="post" style="display:inline;">
-                        <input type="hidden" name="devolucao_id" value="{{ devolucao.id }}">
-                        <button type="submit" class="btn {{ 'btn-success' if devolucao.respondido else 'btn-danger' }} w-100">
-                            {{ 'Respondido' if devolucao.respondido else 'Não respondido' }}
-                        </button>
-                    </form>
+                    {% if devolucao.resposta %}
+                        <span class="badge badge-success">Respondido</span>
+                    {% else %}
+                        <span class="badge badge-danger">Não respondido</span>
+                    {% endif %}
                 </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Seção de Pedidos -->
+<h2>Pedidos</h2>
+<form method="GET" action="{{ url_for('gerenciar_sistema') }}">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="search_pedido" placeholder="Buscar pedidos" value="{{ request.args.get('search_pedido', '') }}">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+    </div>
+</form>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Código do Pedido</th>
+                <th>Email do Usuário</th>
+                <th>Data da Compra</th>
+                <th>Quantidade de Itens</th>
+                <th>Valor Total</th>
+                <th>Forma de Pagamento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pedido in pedidos %}
+            <tr>
+                <td>{{ pedido.id }}</td>
+                <td>{{ pedido.email_usuario }}</td>
+                <td>{{ pedido.data_compra.strftime('%d/%m/%Y') }}</td>
+                <td>{{ pedido.quantidade }}</td>
+                <td>R$ {{ '%.2f'|format(pedido.preco_total) }}</td>
+                <td>{{ pedido.forma_pagamento }}</td>
             </tr>
             {% endfor %}
         </tbody>

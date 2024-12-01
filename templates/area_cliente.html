@@ -49,6 +49,41 @@
     </tbody>
 </table>
 </div>
+
+<h2>Devoluções</h2>
+<div class="table-responsive">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Número do Pedido</th>
+            <th>Data da Solicitação</th>
+            <th>Motivo</th>
+            <th>Contato</th>
+            <th>Resposta</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for devolucao in devolucoes %}
+        <tr>
+            <td>{{ devolucao.numero_pedido }}</td>
+            <td>{{ devolucao.data_solicitacao.strftime('%d/%m/%Y') }}</td>
+            <td>{{ devolucao.motivo }}</td>
+            <td>{{ devolucao.contato }}</td>
+            <td>{{ devolucao.resposta }}</td>
+            <td>
+                {% if devolucao.respondido %}
+                    <span class="badge badge-success">Respondido</span>
+                {% else %}
+                    <span class="badge badge-danger">Não respondido</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
 <h2>Avaliações</h2>
 <div class="table-responsive">
 <table class="table">
@@ -82,5 +117,4 @@
 </table>
 </div>
 </div>
-
 {% endblock %}
