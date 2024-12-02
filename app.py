@@ -619,6 +619,25 @@ def excluir_usuario():
     email = data.get('email')
     usuario = db_session.query(Usuario).filter_by(email=email).first()
     if usuario:
+
+        # Excluir itens de compra associados
+        compras = db_session.query(Compra).filter_by(email_usuario=email).all()
+        for compra in compras:
+            itens_compra = db_session.query(ItensCompra).filter_by(id_compra=compra.id).all()
+            for item in itens_compra:
+                db_session.delete(item)
+            db_session.delete(compra)
+        
+        # Excluir compras associadas
+        compras = db_session.query(Compra).filter_by(email_usuario=email).all()
+        for compra in compras:
+            db_session.delete(compra)
+        
+        # Excluir endereços associados
+        enderecos = db_session.query(Endereco).filter_by(email_usuario=email).all()
+        for endereco in enderecos:
+            db_session.delete(endereco)
+        
         db_session.delete(usuario)
         db_session.commit()
         flash('Usuário excluído com sucesso!', 'success')
